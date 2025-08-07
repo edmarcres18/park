@@ -66,6 +66,12 @@
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
+                    <strong>Total Fee:</strong>
+                    ₱{{ number_format($ticket->total_fee, 2) }}
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
                     <strong>Printed:</strong>
                     {{ $ticket->is_printed ? 'Yes' : 'No' }}
                 </div>

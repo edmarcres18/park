@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Attendant Panel') - ParkSmart</title>
+    <title>@yield('title', $siteSettings->app_name ?? config('app.name', 'ParkSmart')) - {{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
@@ -251,11 +251,15 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between p-6 border-b border-slate-700">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="ri-user-line text-xl text-white"></i>
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
+                        @if(!empty($siteSettings->brand_logo))
+                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-10 h-10 object-contain rounded-xl">
+                        @else
+                            <i class="ri-user-line text-xl text-white"></i>
+                        @endif
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">ParkSmart</h1>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">{{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</h1>
                         <p class="text-xs text-slate-400">Attendant Panel</p>
                     </div>
                 </div>
@@ -335,10 +339,6 @@
                             <a href="{{ route('attendant.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
                                 <i class="ri-list-check text-sm mr-3"></i>
                                 <span class="text-sm">All Tickets</span>
-                            </a>
-                            <a href="{{ route('attendant.tickets.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Create Ticket</span>
                             </a>
                         </div>
                     </div>

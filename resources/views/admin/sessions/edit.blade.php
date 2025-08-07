@@ -176,7 +176,7 @@
 </div>
 @endsection
 
-@push('scripts'>
+@push('scripts')
 <script>
     $(document).ready(function() {
         // Update fee calculation when end time changes

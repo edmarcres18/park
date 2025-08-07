@@ -29,6 +29,17 @@ class Ticket extends Model
         'qr_data',
         'barcode',
         'notes',
+        'latitude',
+        'longitude',
+        'accuracy',
+        'location_source',
+        'address',
+        'city',
+        'state',
+        'country',
+        'postal_code',
+        'template_slug',
+        'template_data',
     ];
 
     /**
@@ -44,6 +55,10 @@ class Ticket extends Model
             'time_out' => 'datetime',
             'is_printed' => 'boolean',
             'qr_data' => 'array',
+            'latitude' => 'decimal:8',
+            'longitude' => 'decimal:8',
+            'accuracy' => 'decimal:2',
+            'template_data' => 'array',
         ];
     }
 
@@ -68,19 +83,54 @@ class Ticket extends Model
     }
 
     /**
+     * Get the plate associated with this ticket.
+     */
+    public function plate(): BelongsTo
+    {
+        return $this->belongsTo(Plate::class, 'plate_number', 'number');
+    }
+
+    /**
      * Generate a unique ticket number.
      * Format: PREFIX + PLATE_NUMBER + DDMMYY
+     *
+     * If called as an instance method, always use the related plate's number if available.
+     * If called statically, use the provided plate number string.
      */
-    public static function generateTicketNumber(string $plateNumber = null): string
+    public static function generateTicketNumber(string $plateNumber = null, self $ticket = null): string
     {
-        $prefix = config('app.ticket_prefix', 'MHRPS');
-        $plateNumber = $plateNumber ?: 'UNKNOWN';
-        $date = now()->format('dmy'); // Day, Month, Year (last 2 digits)
-        
-        // Clean plate number (remove spaces and special characters)
+        $prefix = (string) config('app.ticket_prefix', 'MHRPS');
+        if (empty($prefix)) {
+            $prefix = 'MHRPS';
+        }
+
+        // If a Ticket instance is provided, use its related plate's number if available
+        if ($ticket instanceof self && $ticket->relationLoaded('plate') && $ticket->plate) {
+            $plateNumber = $ticket->plate->number;
+        } elseif ($ticket instanceof self && $ticket->plate_number) {
+            $plateNumber = $ticket->plate_number;
+        }
+
+        // If plate number is missing or empty, try to fetch from Plate model
+        if (!isset($plateNumber) || trim($plateNumber) === '') {
+            $plate = \App\Models\Plate::first(); // fallback: get any plate (should not happen in real flow)
+            if ($plate) {
+                $plateNumber = $plate->number;
+            }
+        }
+
+        // Ensure plate number is always a string and fallback to 'UNKNOWN' only if truly missing
+        $plateNumber = isset($plateNumber) && trim($plateNumber) !== '' ? $plateNumber : 'UNKNOWN';
+
+        // Clean plate number (remove spaces and special characters, only A-Z and 0-9)
         $cleanPlateNumber = preg_replace('/[^A-Z0-9]/', '', strtoupper($plateNumber));
-        
-        return $prefix . $cleanPlateNumber . $date;
+        if (empty($cleanPlateNumber)) {
+            $cleanPlateNumber = 'UNKNOWN';
+        }
+
+        $date = now()->format('dmy');
+        $ticketNumber = $prefix . $cleanPlateNumber . $date;
+        return $ticketNumber;
     }
 
     /**
@@ -180,5 +230,175 @@ class Ticket extends Model
     public function markAsPrinted(): bool
     {
         return $this->update(['is_printed' => true]);
+    }
+
+    /**
+     * Get the ticket template associated with this ticket.
+     */
+    public function template()
+    {
+        return $this->belongsTo(TicketTemplate::class, 'template_slug', 'slug');
+    }
+
+    /**
+     * Set location information for the ticket.
+     */
+    public function setLocation($latitude, $longitude, $accuracy = null, $source = 'gps', $address = null, $city = null, $state = null, $country = null, $postalCode = null): bool
+    {
+        return $this->update([
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'accuracy' => $accuracy,
+            'location_source' => $source,
+            'address' => $address,
+            'city' => $city,
+            'state' => $state,
+            'country' => $country,
+            'postal_code' => $postalCode,
+        ]);
+    }
+
+    /**
+     * Get formatted location string.
+     */
+    public function getFormattedLocationAttribute(): string
+    {
+        if (!$this->latitude || !$this->longitude) {
+            return 'Location not available';
+        }
+
+        $parts = [];
+
+        if ($this->address) {
+            $parts[] = $this->address;
+        }
+
+        if ($this->city) {
+            $parts[] = $this->city;
+        }
+
+        if ($this->state) {
+            $parts[] = $this->state;
+        }
+
+        if ($this->country) {
+            $parts[] = $this->country;
+        }
+
+        if (empty($parts)) {
+            return "Lat: {$this->latitude}, Lng: {$this->longitude}";
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
+     * Get location coordinates as array.
+     */
+    public function getLocationCoordinatesAttribute(): array
+    {
+        return [
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
+            'accuracy' => $this->accuracy,
+            'source' => $this->location_source,
+        ];
+    }
+
+    /**
+     * Check if ticket has location information.
+     */
+    public function hasLocation(): bool
+    {
+        return !is_null($this->latitude) && !is_null($this->longitude);
+    }
+
+    /**
+     * Get template data for rendering.
+     */
+    public function getTemplateDataAttribute(): array
+    {
+        $defaultData = [
+            'ticket_number' => $this->ticket_number,
+            'plate_number' => $this->plate_number,
+            'time_in' => $this->formatted_time_in,
+            'time_out' => $this->formatted_time_out,
+            'duration' => $this->duration,
+            'rate' => $this->formatted_rate,
+            'parking_slot' => $this->parking_slot ?? 'N/A',
+            'location' => $this->formatted_location,
+            'attendant' => $this->parkingSession->creator->name ?? 'N/A',
+            'qr_code' => $this->ticket_number,
+            'barcode' => $this->barcode,
+        ];
+
+        return array_merge($defaultData, $this->template_data ?? []);
+    }
+
+    /**
+     * Render ticket with template.
+     */
+    public function renderWithTemplate($templateSlug = null)
+    {
+        $template = null;
+
+        if ($templateSlug) {
+            $template = TicketTemplate::where('slug', $templateSlug)->where('is_active', true)->first();
+        }
+
+        if (!$template) {
+            $template = TicketTemplate::getDefault();
+        }
+
+        if (!$template) {
+            // Fallback to default template
+            return $this->renderDefaultTemplate();
+        }
+
+        $data = $this->template_data;
+        return $template->render($data);
+    }
+
+    /**
+     * Render default template.
+     */
+    private function renderDefaultTemplate()
+    {
+        // Return default template HTML
+        return [
+            'html' => view('tickets.templates.default', ['ticket' => $this])->render(),
+            'css' => '',
+        ];
+    }
+
+    /**
+     * Get the total fee for this ticket, using the associated session's logic.
+     */
+    public function getTotalFeeAttribute(): float
+    {
+        $session = $this->parkingSession;
+        if (!$session) {
+            return 0;
+        }
+        // Use the session's calculateTotalFee method
+        return $session->calculateTotalFee();
+    }
+
+    /**
+     * Get the fee breakdown for this ticket, using the associated session's logic.
+     */
+    public function getFeeBreakdownAttribute(): array
+    {
+        $session = $this->parkingSession;
+        if (!$session) {
+            return [
+                'total_minutes' => 0,
+                'grace_period_minutes' => 0,
+                'chargeable_minutes' => 0,
+                'total_fee' => 0,
+                'breakdown' => ['No session associated with this ticket']
+            ];
+        }
+        return $session->getFeeBreakdown();
     }
 }

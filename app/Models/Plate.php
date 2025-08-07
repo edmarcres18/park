@@ -30,6 +30,14 @@ class Plate extends Model
     }
 
     /**
+     * Get the tickets for this plate.
+     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'plate_number', 'number');
+    }
+
+    /**
      * Configure activity log options
      */
     public function getActivitylogOptions(): LogOptions

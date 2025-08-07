@@ -52,14 +52,14 @@
                     const btn = document.getElementById('loginBtn');
                     btn.disabled = true;
                     btn.textContent = 'SIGNING IN...';
-                    
+
                     // Re-enable button after 3 seconds to prevent indefinite disable
                     setTimeout(() => {
                         btn.disabled = false;
                         btn.textContent = 'SIGN IN';
                     }, 3000);
                 });
-                
+
                 // Client-side validation
                 document.getElementById('email').addEventListener('blur', function() {
                     const email = this.value;

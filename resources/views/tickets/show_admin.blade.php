@@ -8,20 +8,18 @@
     <!-- Header Section -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                        <i class="ri-ticket-2-line text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-white">Ticket Details</h2>
-                        <p class="text-blue-100 text-sm">Detailed information about the parking ticket</p>
-                    </div>
-                </div>
+            <div class="flex flex-col items-center justify-center">
+                @if(!empty($ticketConfig['logo']))
+                    <img src="{{ $ticketConfig['logo'] }}" alt="Logo" class="h-16 mb-2">
+                @endif
+                <h2 class="text-xl font-bold text-white">Ticket Details</h2>
+                @if(!empty($ticketConfig['location_address']))
+                    <div class="text-blue-100 text-xs mb-1">{{ $ticketConfig['location_address'] }}</div>
+                @endif
+                <p class="text-blue-100 text-sm">Detailed information about the parking ticket</p>
             </div>
         </div>
     </div>
-
     <!-- Ticket Details -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-6">
@@ -55,6 +53,10 @@
                     <dd class="mt-1 text-sm font-semibold text-slate-900">{{ $ticket->duration }}</dd>
                 </div>
                 <div class="overflow-hidden rounded-lg bg-blue-50 p-4">
+                    <dt class="text-sm font-medium text-slate-500">Total Fee</dt>
+                    <dd class="mt-1 text-sm font-semibold text-slate-900">₱{{ number_format($ticket->total_fee, 2) }}</dd>
+                </div>
+                <div class="overflow-hidden rounded-lg bg-blue-50 p-4">
                     <dt class="text-sm font-medium text-slate-500">Printed</dt>
                     <dd class="mt-1 text-sm font-semibold text-slate-900">{{ $ticket->is_printed ? 'Yes' : 'No' }}</dd>
                 </div>
@@ -67,7 +69,6 @@
             </dl>
         </div>
     </div>
-
     <!-- Actions -->
     <div class="flex justify-end mt-4">
         <a class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-purple-500 focus:outline-none focus:border-purple-700 focus:ring focus:ring-purple-200 active:bg-purple-600 transition" href="{{ route('admin.tickets.print', $ticket) }}" target="_blank">Print Ticket</a>

@@ -7,9 +7,17 @@ use App\Models\ParkingSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use App\Services\TicketTemplateConfigService;
 
 class TicketController extends Controller
 {
+    protected $ticketConfigService;
+
+    public function __construct(TicketTemplateConfigService $ticketConfigService)
+    {
+        $this->ticketConfigService = $ticketConfigService;
+    }
+
     /**
      * Display a listing of the tickets.
      */
@@ -78,9 +86,24 @@ class TicketController extends Controller
             'parking_session_id' => 'required|exists:parking_sessions,id',
             'parking_slot' => 'nullable|string|max:20',
             'notes' => 'nullable|string|max:500',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'accuracy' => 'nullable|numeric|min:0',
+            'location_source' => 'nullable|string|in:gps,network,passive,fused',
+            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'template_slug' => 'nullable|string|exists:ticket_templates,slug',
         ]);
 
         $parkingSession = ParkingSession::with('parkingRate')->findOrFail($request->parking_session_id);
+
+        // Prevent ticket creation if plate_number is missing or empty
+        if (!isset($parkingSession->plate_number) || trim($parkingSession->plate_number) === '') {
+            return redirect()->back()->with('error', 'Cannot generate ticket: Parking session has no valid plate number.');
+        }
 
         // Check if ticket already exists for this session
         if ($parkingSession->ticket) {
@@ -89,6 +112,13 @@ class TicketController extends Controller
 
         $ticketNumber = Ticket::generateTicketNumber($parkingSession->plate_number);
         $currentRate = $parkingSession->parkingRate ? $parkingSession->parkingRate->rate_amount : 0;
+
+        // Get default template if none specified
+        $templateSlug = $request->template_slug;
+        if (!$templateSlug) {
+            $defaultTemplate = \App\Models\TicketTemplate::getDefault();
+            $templateSlug = $defaultTemplate ? $defaultTemplate->slug : null;
+        }
 
         $ticket = Ticket::create([
             'ticket_number' => $ticketNumber,
@@ -100,6 +130,16 @@ class TicketController extends Controller
             'notes' => $request->notes,
             'qr_data' => [],
             'barcode' => $ticketNumber,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'accuracy' => $request->accuracy,
+            'location_source' => $request->location_source ?? 'gps',
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
+            'country' => $request->country,
+            'postal_code' => $request->postal_code,
+            'template_slug' => $templateSlug,
         ]);
 
         // Generate QR data
@@ -114,11 +154,11 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $ticket->load(['parkingSession.creator', 'parkingSession.parkingRate']);
-        
+        $ticketConfig = $this->ticketConfigService->getConfig();
         if (auth()->user()->hasRole('admin')) {
-            return view('tickets.show_admin', compact('ticket'));
+            return view('tickets.show_admin', compact('ticket', 'ticketConfig'));
         } else {
-            return view('tickets.show_attendant', compact('ticket'));
+            return view('tickets.show_attendant', compact('ticket', 'ticketConfig'));
         }
     }
 
@@ -127,9 +167,18 @@ class TicketController extends Controller
      */
     public function print(Ticket $ticket)
     {
-        $ticket->load(['parkingSession.creator', 'parkingSession.parkingRate']);
-        
-        return view('tickets.print', compact('ticket'));
+        $ticket->load(['parkingSession.creator', 'parkingSession.parkingRate', 'template']);
+        $template = null;
+        if ($ticket->template_slug) {
+            $template = \App\Models\TicketTemplate::where('slug', $ticket->template_slug)
+                                                   ->where('is_active', true)
+                                                   ->first();
+        }
+        if (!$template) {
+            $template = \App\Models\TicketTemplate::getDefault();
+        }
+        $ticketConfig = $this->ticketConfigService->getConfig();
+        return view('tickets.print', compact('ticket', 'template', 'ticketConfig'));
     }
 
     /**
@@ -138,7 +187,7 @@ class TicketController extends Controller
     public function markPrinted(Ticket $ticket)
     {
         $ticket->markAsPrinted();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Ticket marked as printed successfully.'
@@ -233,7 +282,7 @@ class TicketController extends Controller
         if (!Auth::user()->hasRole('admin')) {
             abort(403, 'Unauthorized. Admin access required.');
         }
-        
+
         $stats = [
             'total_tickets' => Ticket::count(),
             'printed_tickets' => Ticket::printed()->count(),
@@ -246,14 +295,14 @@ class TicketController extends Controller
 
         return response()->json($stats);
     }
-    
+
     /**
      * Filter tickets based on user role.
      */
     private function filterTicketsByRole($query)
     {
         $user = Auth::user();
-        
+
         // Both admin and attendant can see all tickets
         // No filtering needed - attendants have same data access as admins
         return $query;

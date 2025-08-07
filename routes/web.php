@@ -17,6 +17,8 @@ use App\Http\Controllers\Attendant\RateController as AttendantRateController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TicketController;
 use App\Models\User;
+use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\TicketTemplateController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -41,12 +43,12 @@ Route::get('/test-notification', function () {
     return 'No admin user found';
 });
 
-Route::get('register', [RegisterController::class, 'showRegistrationForm'])->middleware('guest','throttle:3,5')->name('register');
-Route::post('register', [RegisterController::class, 'register'])->middleware('guest','throttle:3,5');
+    Route::get('register', [RegisterController::class, 'showRegistrationForm'])->middleware('guest','throttle:3,5')->name('register');
+    Route::post('register', [RegisterController::class, 'register'])->middleware('guest','throttle:3,5');
 
-Route::get('login', [LoginController::class, 'showLoginForm'])->middleware('guest','throttle:5,1')->name('login');
-Route::post('login', [LoginController::class, 'login'])->middleware('guest','throttle:5,1');
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('login', [LoginController::class, 'showLoginForm'])->middleware('guest','throttle:5,1')->name('login');
+    Route::post('login', [LoginController::class, 'login'])->middleware('guest','throttle:5,1');
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
@@ -58,20 +60,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::put('users/{user}/status', [UserController::class, 'updateStatus'])->name('users.update-status');
     Route::delete('users/{userId}', [UserController::class, 'delete'])->name('users.delete');
-    // Debug route to test if user exists
-    Route::get('users/{userId}/test', function($userId) {
-        $user = User::find($userId);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        return response()->json([
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_email' => $user->email,
-            'user_status' => $user->status,
-            'user_roles' => $user->roles->pluck('name')
-        ]);
-    })->name('users.test');
+
     Route::post('users/bulk-approve', [UserController::class, 'bulkApprove'])->name('users.bulk-approve');
     Route::post('users/bulk-reject', [UserController::class, 'bulkReject'])->name('users.bulk-reject');
     Route::post('users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
@@ -85,10 +74,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         ->middleware('role:admin')
         ->name('plates.destroy');
 
-Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
-Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
-Route::get('reports/sales/export', [ReportController::class, 'exportCsv'])->name('reports.sales.export');
-Route::get('reports/sales/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.sales.export-pdf');
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('reports/sales/export', [ReportController::class, 'exportCsv'])->name('reports.sales.export');
+    Route::get('reports/sales/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.sales.export-pdf');
 
     // Location monitoring routes
     Route::get('location-monitor', [LocationMonitorController::class, 'index'])->name('location-monitor.index');
@@ -123,6 +112,18 @@ Route::get('reports/sales/export-pdf', [ReportController::class, 'exportPdf'])->
         Route::post('/bulk-print', [TicketController::class, 'bulkPrint'])->name('bulk-print');
         Route::get('/statistics', [TicketController::class, 'statistics'])->name('statistics');
     });
+
+    // Site Settings routes (Admin only)
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SiteSettingController::class, 'index'])->name('index');
+        Route::get('/create', [SiteSettingController::class, 'create'])->name('create');
+        Route::post('/', [SiteSettingController::class, 'store'])->name('store');
+        Route::get('/{setting}/edit', [SiteSettingController::class, 'edit'])->name('edit');
+        Route::put('/{setting}', [SiteSettingController::class, 'update'])->name('update');
+        Route::delete('/{setting}', [SiteSettingController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-update', [SiteSettingController::class, 'bulkUpdate'])->name('bulk-update');
+        Route::post('/clear-cache', [SiteSettingController::class, 'clearCache'])->name('clear-cache');
+    });
 });
 
 Route::middleware(['auth', 'role:attendant'])->prefix('attendant')->name('attendant.')->group(function () {
@@ -143,7 +144,6 @@ Route::middleware(['auth', 'role:attendant'])->prefix('attendant')->name('attend
     // Attendant Ticket Routes (limited access)
     Route::prefix('tickets')->name('tickets.')->group(function () {
         Route::get('/', [TicketController::class, 'index'])->name('index');
-        Route::get('/create', [TicketController::class, 'create'])->name('create');
         Route::post('/', [TicketController::class, 'store'])->name('store');
         Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
         Route::get('/{ticket}/print', [TicketController::class, 'print'])->name('print');
@@ -161,6 +161,26 @@ Route::middleware(['auth', 'role:attendant'])->prefix('attendant')->name('attend
     Route::delete('rates/{rate}', [AttendantRateController::class, 'destroy'])->name('rates.destroy');
 });
 
-//Ticket Verification route
-Route::get('tickets/verify/{ticket_number}', [TicketController::class, 'verify'])->name('tickets.verify');
+    //Ticket Verification route
+    Route::get('tickets/verify/{ticket_number}', [TicketController::class, 'verify'])->name('tickets.verify');
 
+    // Ticket Template Config (logo, location_address)
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+        Route::get('ticket-config', [\App\Http\Controllers\Admin\TicketConfigController::class, 'edit'])->name('admin.ticket-config.edit');
+        Route::post('ticket-config', [\App\Http\Controllers\Admin\TicketConfigController::class, 'update'])->name('admin.ticket-config.update');
+    });
+
+    // Debug route to test if user exists
+    Route::get('users/{userId}/test', function($userId) {
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        return response()->json([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'user_status' => $user->status,
+            'user_roles' => $user->roles->pluck('name')
+        ]);
+    })->name('users.test');

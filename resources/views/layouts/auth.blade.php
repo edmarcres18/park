@@ -4,14 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title') | {{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title') | {{ $siteSettings->app_name ?? config('app.name', 'Laravel') }}</title>
     @vite('resources/css/app.css')
     @vite('resources/css/auth.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' data:; img-src 'self' data:;">
 </head>
 <body class="antialiased bg-gray-100">
-    <div class="min-h-screen flex flex-col">
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        @if(!empty($siteSettings->brand_logo))
+            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-20 h-20 object-contain mb-4 rounded-xl">
+        @endif
+        <h1 class="text-2xl font-bold mb-2">{{ $siteSettings->app_name ?? config('app.name', 'Laravel') }}</h1>
         @yield('content')
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

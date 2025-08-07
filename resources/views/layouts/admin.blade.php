@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Panel') - ParkSmart</title>
+    <title>@yield('title', $siteSettings->app_name ?? config('app.name', 'ParkSmart')) - {{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
@@ -281,11 +281,15 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between p-6 border-b border-slate-700">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <i class="ri-admin-line text-xl text-white"></i>
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center overflow-hidden">
+                        @if(!empty($siteSettings->brand_logo))
+                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-10 h-10 object-contain rounded-xl">
+                        @else
+                            <i class="ri-admin-line text-xl text-white"></i>
+                        @endif
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">ParkSmart</h1>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</h1>
                         <p class="text-xs text-slate-400">Admin Control</p>
                     </div>
                 </div>
@@ -377,7 +381,7 @@
                 <!-- Ticketing -->
                 <div class="space-y-1">
                     <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200" onclick="toggleSubmenu('ticketing-submenu')">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.tickets.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('ticketing-submenu')">
                             <i class="ri-ticket-2-line text-xl mr-4"></i>
                             <span class="font-medium">Ticketing</span>
                             <div class="ml-auto">
@@ -385,13 +389,9 @@
                             </div>
                         </button>
                         <div id="ticketing-submenu" class="hidden ml-8 space-y-1 mt-2">
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-add-circle-line text-sm mr-3"></i>
-                                <span class="text-sm">Generate Ticket (manual)</span>
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-history-line text-sm mr-3"></i>
-                                <span class="text-sm">Ticket History</span>
+                            <a href="{{ route('admin.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.tickets.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
+                                <i class="ri-list-check text-sm mr-3"></i>
+                                <span class="text-sm">All Tickets</span>
                             </a>
                         </div>
                     </div>
@@ -400,7 +400,7 @@
                 <!-- Reports & Sales -->
                 <div class="space-y-1">
                     <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200" onclick="toggleSubmenu('reports-submenu')">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.reports.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('reports-submenu')">
                             <i class="ri-bar-chart-2-line text-xl mr-4"></i>
                             <span class="font-medium">Reports & Sales</span>
                             <div class="ml-auto">
@@ -408,17 +408,9 @@
                             </div>
                         </button>
                         <div id="reports-submenu" class="hidden ml-8 space-y-1 mt-2">
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
+                            <a href="{{ route('admin.reports.sales') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.reports.sales') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-calendar-line text-sm mr-3"></i>
                                 <span class="text-sm">Daily Sales</span>
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-calendar-2-line text-sm mr-3"></i>
-                                <span class="text-sm">Monthly Sales</span>
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-download-line text-sm mr-3"></i>
-                                <span class="text-sm">Export CSV/PDF</span>
                             </a>
                         </div>
                     </div>
@@ -491,7 +483,7 @@
                 <!-- Settings -->
                 <div class="space-y-1">
                     <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200"  onclick="toggleSubmenu('settings-submenu')">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}"  onclick="toggleSubmenu('settings-submenu')">
                             <i class="ri-settings-3-line text-xl mr-4"></i>
                             <span class="font-medium">Settings</span>
                             <div class="ml-auto">
@@ -499,17 +491,17 @@
                             </div>
                         </button>
                         <div id="settings-submenu" class="hidden ml-8 space-y-1 mt-2">
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
+                            <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-apps-line text-sm mr-3"></i>
-                                <span class="text-sm">App Settings</span>
+                                <span class="text-sm">Site Settings</span>
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-mail-line text-sm mr-3"></i>
-                                <span class="text-sm">Email Notifications</span>
+                            <a href="{{ route('admin.settings.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
+                                <i class="ri-add-line text-sm mr-3"></i>
+                                <span class="text-sm">Add Setting</span>
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-shield-user-line text-sm mr-3"></i>
-                                <span class="text-sm">Roles & Permissions</span>
+                            <a href="{{ route('admin.ticket-config.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.ticket-config.edit') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
+                                <i class="ri-ticket-line text-sm mr-3"></i>
+                                <span class="text-sm">Ticket Config</span>
                             </a>
                             <a href="{{ route('admin.activity-logs.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.activity-logs.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-history-line text-sm mr-3"></i>

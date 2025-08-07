@@ -8,9 +8,17 @@ use App\Models\ParkingSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use App\Services\TicketTemplateConfigService;
 
 class TicketApiController extends Controller
 {
+    protected $ticketConfigService;
+
+    public function __construct(TicketTemplateConfigService $ticketConfigService)
+    {
+        $this->ticketConfigService = $ticketConfigService;
+    }
+
     /**
      * Retrieve ticket by ID.
      */
@@ -23,7 +31,11 @@ class TicketApiController extends Controller
             return response()->json(['error' => 'Ticket not found'], 404);
         }
 
-        return response()->json($ticket);
+        $ticketConfig = $this->ticketConfigService->getConfig();
+        return response()->json([
+            'ticket' => $ticket,
+            'ticket_config' => $ticketConfig,
+        ]);
     }
 
     /**
@@ -68,10 +80,12 @@ class TicketApiController extends Controller
         // Generate QR data
         $ticket->update(['qr_data' => $ticket->generateQrData()]);
 
+        $ticketConfig = $this->ticketConfigService->getConfig();
         return response()->json([
             'success' => true,
             'message' => 'Ticket generated successfully',
             'ticket' => $ticket->load(['parkingSession.creator', 'parkingSession.parkingRate']),
+            'ticket_config' => $ticketConfig,
         ]);
     }
 }

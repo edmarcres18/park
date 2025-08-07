@@ -216,7 +216,7 @@
                     // Disable button and show loading state
                     btn.disabled = true;
                     btn.textContent = 'CREATING ACCOUNT...';
-                    
+
                     // Re-enable button after 5 seconds to prevent indefinite disable
                     setTimeout(() => {
                         btn.disabled = false;
