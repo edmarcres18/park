@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StartSessionRequest;
+use App\Http\Requests\EndSessionRequest;
+use App\Models\ParkingSession;
+use App\Models\Plate;
+use App\Models\ParkingRate;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+
+class SessionController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): View
+    {
+        $sessions = ParkingSession::with('creator')->orderBy('created_at', 'desc')->get();
+        
+        // Determine view based on user role
+        $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
+        
+        return view($viewPath, compact('sessions'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): View
+    {
+        $plates = Plate::orderBy('number')->get();
+        $parkingRates = ParkingRate::orderBy('name')->get();
+        $activeRate = ParkingRate::getActiveRate();
+        
+        // Determine view based on user role
+        $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.create' : 'attendant.sessions.create';
+        
+        return view($viewPath, compact('plates', 'parkingRates', 'activeRate'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StartSessionRequest $request): RedirectResponse
+    {
+        $session = ParkingSession::create($request->validated());
+        $route = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
+        return redirect()->route($route)->with('success', 'Parking session started successfully!');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(ParkingSession $session): View
+    {
+        $plates = Plate::orderBy('number')->get();
+        $parkingRates = ParkingRate::orderBy('name')->get();
+        $activeRate = ParkingRate::getActiveRate();
+        
+        // Determine view based on user role
+        $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.edit' : 'attendant.sessions.edit';
+        
+        return view($viewPath, compact('session', 'plates', 'parkingRates', 'activeRate'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(EndSessionRequest $request, ParkingSession $session): RedirectResponse
+    {
+        $session->endSession($request->end_time);
+
+        if ($request->has('printed')) {
+            $session->update(['printed' => $request->printed]);
+        }
+
+        $route = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
+        return redirect()->route($route)->with('success', 'Parking session ended successfully!');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * Only admin users can delete parking sessions.
+     */
+    public function destroy(ParkingSession $session): RedirectResponse
+    {
+        // Check if user has admin role
+        if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized. Only administrators can delete parking sessions.');
+        }
+
+        $session->delete();
+        return redirect()->route('admin.sessions.index')->with('success', 'Parking session deleted successfully!');
+    }
+}
