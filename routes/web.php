@@ -19,6 +19,7 @@ use App\Http\Controllers\TicketController;
 use App\Models\User;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\TicketTemplateController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -44,6 +45,14 @@ Route::get('/test-notification', function () {
 });
 
     Route::get('register', [RegisterController::class, 'showRegistrationForm'])->middleware('guest','throttle:3,5')->name('register');
+
+// Notifications routes
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::get('/notifications/unread', [NotificationController::class, 'getUnreadNotifications'])->name('notifications.unread');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read_all');
+});
     Route::post('register', [RegisterController::class, 'register'])->middleware('guest','throttle:3,5');
 
     Route::get('login', [LoginController::class, 'showLoginForm'])->middleware('guest','throttle:5,1')->name('login');
@@ -184,3 +193,9 @@ Route::middleware(['auth', 'role:attendant'])->prefix('attendant')->name('attend
             'user_roles' => $user->roles->pluck('name')
         ]);
     })->name('users.test');
+
+// Authenticated user profile routes
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});

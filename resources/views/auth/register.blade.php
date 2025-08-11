@@ -3,48 +3,60 @@
 @section('title', 'Register')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center">
-    <div class="flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl w-full">
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+    <main class="grid grid-cols-1 md:grid-cols-2 bg-white rounded-2xl shadow-xl ring-1 ring-gray-100 overflow-hidden w-full max-w-5xl">
         <!-- Left Panel -->
-        <div class="left-panel text-white w-full md:w-1/2 p-12 flex flex-col justify-center items-center text-center">
-            <h1 class="text-3xl font-bold mb-4">Already Signed up?</h1>
-            <p class="mb-8">Log in to your account so you can continue building and editing your onboarding flows.</p>
-            <a href="{{ route('login') }}" class="border-2 border-white rounded-full py-2 px-12 font-semibold hover:bg-white hover:text-blue-700 transition-colors duration-300">LOG IN</a>
-        </div>
+        <section class="left-panel relative text-white p-10 md:p-12 flex flex-col justify-center items-center text-center bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-600">
+            <div class="absolute inset-0 opacity-20 pointer-events-none" aria-hidden="true"></div>
+            <div class="max-w-sm mx-auto">
+                <div class="inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/90 ring-2 ring-white/60 shadow-xl mb-6">
+                    <span class="inline-flex">
+                        @if(!empty($siteSettings->brand_logo))
+                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-md">
+                        @else
+                            <span class="text-blue-700 font-semibold text-xl">Your Brand</span>
+                        @endif
+                    </span>
+                </div>
+                <h1 class="text-3xl font-semibold tracking-tight mb-3">Already Signed up?</h1>
+                <p class="text-white/90 mb-8 leading-relaxed">Log in to your account so you can continue building and editing your onboarding flows.</p>
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center border-2 border-white rounded-full py-2.5 px-10 font-semibold hover:bg-white hover:text-blue-700 transition-colors duration-300">LOG IN</a>
+            </div>
+        </section>
 
         <!-- Right Panel -->
-        <div class="right-panel w-full md:w-1/2 p-12">
-            <h2 class="text-3xl font-bold mb-2">Sign Up for an Account</h2>
-            <p class="text-gray-600 mb-8">Let's get you all set up so you can start creating your first onboarding experience.</p>
+        <section class="right-panel p-8 sm:p-10">
+            <header class="mb-8">
+                <p class="text-sm text-gray-500 mb-1">Create account</p>
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Sign Up for an Account</h2>
+                <p class="text-gray-600 mt-2">Let's get you all set up so you can start creating your first onboarding experience.</p>
+            </header>
 
-
-            <form method="POST" action="{{ route('register') }}" id="registerForm">
+            <form method="POST" action="{{ route('register') }}" id="registerForm" class="grid gap-5">
                 @csrf
-                <div class="mb-4">
-                    <div>
-                        <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name</label>
-                        <input id="name" type="text" class="w-full px-4 py-3 rounded-lg bg-gray-200 border focus:outline-none focus:ring-2 focus:ring-blue-500 @error('name') border-red-500 @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" placeholder="Your name" maxlength="255" minlength="2">
-                        @error('name')
-                            <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
-                        @enderror
-                        <div id="name-error" class="text-red-500 text-xs italic mt-2 hidden">Name must be at least 2 characters long.</div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                    <input id="email" type="email" class="w-full px-4 py-3 rounded-lg bg-gray-200 border focus:outline-none focus:ring-2 focus:ring-blue-500 @error('email') border-red-500 @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Enter your email address" maxlength="255">
-                    @error('email')
-                        <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                <div class="grid gap-2">
+                    <label for="name" class="text-sm font-medium text-gray-700">Name</label>
+                    <input id="name" type="text" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-500 focus:ring-red-500 @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" placeholder="Your name" maxlength="255" minlength="2" aria-invalid="{{ $errors->has('name') ? 'true' : 'false' }}">
+                    @error('name')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                     @enderror
-                    <div id="email-error" class="text-red-500 text-xs italic mt-2 hidden">Please enter a valid email address.</div>
+                    <div id="name-error" class="text-red-500 text-xs mt-1 hidden">Name must be at least 2 characters long.</div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                    <input id="password" type="password" class="w-full px-4 py-3 rounded-lg bg-gray-200 border focus:outline-none focus:ring-2 focus:ring-blue-500 @error('password') border-red-500 @enderror" name="password" required autocomplete="new-password" placeholder="Enter a strong password" minlength="8">
+                <div class="grid gap-2">
+                    <label for="email" class="text-sm font-medium text-gray-700">Email</label>
+                    <input id="email" type="email" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 focus:ring-red-500 @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Enter your email address" maxlength="255" aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}">
+                    @error('email')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                    <div id="email-error" class="text-red-500 text-xs mt-1 hidden">Please enter a valid email address.</div>
+                </div>
+
+                <div class="grid gap-2">
+                    <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+                    <input id="password" type="password" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 focus:ring-red-500 @enderror" name="password" required autocomplete="new-password" placeholder="Enter a strong password" minlength="8" aria-describedby="password-strength" aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}">
                     @error('password')
-                        <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                     @enderror
                     <div id="password-strength" class="text-sm mt-2">
                         <div class="text-gray-600">Password must contain:</div>
@@ -55,22 +67,22 @@
                     </div>
                 </div>
 
-                <div class="mb-6">
-                    <label for="password-confirm" class="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-                    <input id="password-confirm" type="password" class="w-full px-4 py-3 rounded-lg bg-gray-200 border focus:outline-none focus:ring-2 focus:ring-blue-500" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm your password" minlength="8">
-                    <div id="password-match-error" class="text-red-500 text-xs italic mt-2 hidden">Passwords do not match.</div>
+                <div class="grid gap-2">
+                    <label for="password-confirm" class="text-sm font-medium text-gray-700">Confirm Password</label>
+                    <input id="password-confirm" type="password" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm your password" minlength="8">
+                    <div id="password-match-error" class="text-red-500 text-xs mt-1 hidden">Passwords do not match.</div>
                 </div>
 
-                <div class="mb-6">
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" name="terms" id="terms" required>
-                        <span class="ml-2 text-gray-700">I accept the <a href="#" class="text-blue-600 hover:underline" onclick="alert('Terms and Conditions would be displayed here'); return false;">Terms & Conditions</a></span>
+                <div class="grid gap-2">
+                    <label class="inline-flex items-center gap-2">
+                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded" name="terms" id="terms" required>
+                        <span class="text-gray-700 text-sm">I accept the <a href="#" class="text-blue-600 hover:underline" onclick="alert('Terms and Conditions would be displayed here'); return false;">Terms & Conditions</a></span>
                     </label>
-                    <div id="terms-error" class="text-red-500 text-xs italic mt-2 hidden">You must accept the terms and conditions.</div>
+                    <div id="terms-error" class="text-red-500 text-xs mt-1 hidden">You must accept the terms and conditions.</div>
                 </div>
 
                 <div>
-                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-full transition-colors duration-300 disabled:opacity-50" id="registerBtn">
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 disabled:opacity-50" id="registerBtn">
                         SIGN UP
                     </button>
                 </div>
@@ -232,8 +244,8 @@
                     }
                 });
             </script>
-        </div>
-    </div>
+        </section>
+    </main>
 </div>
 @endsection
 

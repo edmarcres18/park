@@ -50,5 +50,17 @@ class ParkingSessionObserver
         // Generate QR data after ticket is created
         $qrData = $ticket->generateQrData();
         $ticket->update(['qr_data' => $qrData]);
+
+        event(new \App\Events\ParkingEvent(
+            action: 'ticket_generated',
+            title: 'Ticket Generated',
+            message: "Ticket {$ticketNumber} created for plate #{$parkingSession->plate_number}.",
+            type: 'success',
+            link: (auth()->user() && auth()->user()->hasRole('admin'))
+                ? route('admin.tickets.show', $ticket)
+                : route('attendant.tickets.show', $ticket),
+            initiatorId: auth()->id(),
+            targetRole: 'admin',
+        ));
     }
 }

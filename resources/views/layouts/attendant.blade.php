@@ -286,10 +286,10 @@
                             <i class="ri-time-line text-xl mr-4"></i>
                             <span class="font-medium">Sessions</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="sessions-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="sessions-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="sessions-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.sessions.*') ? '' : 'hidden' }}">
                             <a href="{{ route('attendant.sessions.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-list-check text-sm mr-3"></i>
                                 <span class="text-sm">All Sessions</span>
@@ -309,10 +309,10 @@
                             <i class="ri-car-line text-xl mr-4"></i>
                             <span class="font-medium">Plates</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="plates-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.plates.*') ? 'rotate-180' : '' }}" id="plates-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="plates-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="plates-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.plates.*') ? '' : 'hidden' }}">
                             <a href="{{ route('attendant.plates.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.plates.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-eye-line text-sm mr-3"></i>
                                 <span class="text-sm">View All Plates</span>
@@ -328,15 +328,15 @@
                 <!-- Tickets -->
                 <div class="space-y-1">
                     <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200" onclick="toggleSubmenu('tickets-submenu')">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.tickets.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('tickets-submenu')">
                             <i class="ri-ticket-2-line text-xl mr-4"></i>
                             <span class="font-medium">Tickets</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="tickets-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.tickets.*') ? 'rotate-180' : '' }}" id="tickets-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="tickets-submenu" class="hidden ml-8 space-y-1 mt-2">
-                            <a href="{{ route('attendant.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
+                        <div id="tickets-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.tickets.*') ? '' : 'hidden' }}">
+                            <a href="{{ route('attendant.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.tickets.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-list-check text-sm mr-3"></i>
                                 <span class="text-sm">All Tickets</span>
                             </a>
@@ -344,27 +344,18 @@
                     </div>
                 </div>
 
-                <!-- Reports -->
-                <a href="#" class="group flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200">
-                    <i class="ri-bar-chart-2-line text-xl mr-4"></i>
-                    <span class="font-medium">My Reports</span>
-                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                        <i class="ri-arrow-right-s-line"></i>
-                    </div>
-                </a>
-
                 <!-- Settings -->
                 <div class="space-y-1">
                     <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200" onclick="toggleSubmenu('settings-submenu')">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('profile.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('settings-submenu')">
                             <i class="ri-settings-3-line text-xl mr-4"></i>
                             <span class="font-medium">Settings</span>
                             <div class="ml-auto">
                                 <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="settings-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="settings-submenu" class="hidden ml-8 space-y-1 mt-2">
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
+                        <div id="settings-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('profile.*') ? '' : 'hidden' }}">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-user-settings-line text-sm mr-3"></i>
                                 <span class="text-sm">Profile</span>
                             </a>
@@ -376,6 +367,23 @@
                     </div>
                 </div>
             </nav>
+
+            <script type="module">
+                const csrfToken = '{{ csrf_token() }}';
+                const badge = document.getElementById('notifications-badge');
+                const list = document.getElementById('notifications-list');
+
+                function updateBadge(count){ if(!badge) return; if(count>0){ badge.textContent = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
+                function escapeHtml(str){ return String(str||'').replace(/[&<>\"]/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+                function pushItem(n){ if(!list) return; const icon = n.type==='success'?'ri-check-line':(n.type==='warning'?'ri-alert-line':'ri-information-line'); const div=document.createElement('div'); div.className='bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow'; div.innerHTML = `<div class="flex items-start space-x-3"><div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0"><i class="${icon} text-white"></i></div><div class="flex-1"><div class="flex items-center justify-between"><p class="font-semibold text-slate-800">${escapeHtml(n.title||'Notification')}</p></div><p class="text-sm text-slate-600 mt-1">${escapeHtml(n.message||'')}</p><p class="text-xs text-slate-500 mt-2">just now</p></div></div>`; list.prepend(div); }
+
+                @auth
+                try {
+                    const userId = {{ Auth::id() }};
+                    window.Echo.private(`attendant.${userId}`).notification((n)=>{ pushItem(n); updateBadge((parseInt(badge?.textContent||'0',10)||0)+1); });
+                } catch(_){ }
+                @endauth
+            </script>
 
             <!-- Bottom Section -->
             <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
@@ -428,6 +436,16 @@
                             </a>
                         </div>
 
+                        <!-- Notifications -->
+                        <button id="notifications-btn" class="relative p-2 bg-white/60 hover:bg-white/80 rounded-xl transition-colors">
+                            <i class="ri-notification-3-line text-xl text-slate-700"></i>
+                            @php
+                                $unreadNotifications = Auth::user()->unreadNotifications;
+                                $unreadCount = $unreadNotifications->count();
+                            @endphp
+                            <span id="notifications-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center {{ $unreadCount > 0 ? '' : 'hidden' }}">{{ $unreadCount }}</span>
+                        </button>
+
                         <!-- Profile -->
                         <div class="hidden md:flex items-center space-x-3 bg-white/60 rounded-xl px-3 py-2 profile-info">
                             <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff&rounded=true" alt="Attendant" class="w-8 h-8 rounded-full">
@@ -445,9 +463,73 @@
                 @yield('content')
             </main>
         </div>
+
+        <!-- Right Sidebar for Notifications -->
+        <aside id="notifications-sidebar" class="fixed inset-y-0 right-0 z-50 w-80 bg-white/95 backdrop-blur-lg border-l border-white/20 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out lg:w-96">
+            <div class="h-full flex flex-col">
+                <!-- Header -->
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-slate-800">Notifications</h2>
+                        <button id="close-notifications" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <i class="ri-close-line text-xl text-slate-600"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-1">Stay updated with recent activities</p>
+                </div>
+
+                <!-- Notifications List -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="notifications-list">
+                    @php
+                        $notifications = Auth::user()->notifications()->latest()->take(10)->get();
+                    @endphp
+
+                    @forelse($notifications as $notification)
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow {{ $notification->read_at ? 'opacity-75' : '' }}">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="ri-information-line text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <p class="font-semibold text-slate-800">{{ $notification->data['title'] ?? 'Notification' }}</p>
+                                        @if(!$notification->read_at)
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm text-slate-600 mt-1">{{ $notification->data['message'] ?? '' }}</p>
+                                    <p class="text-xs text-slate-500 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
+                                    @if(!$notification->read_at)
+                                        <button onclick="window.markAsRead('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-800 underline mt-2">
+                                            Mark as read
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="ri-notification-off-line text-2xl text-slate-400"></i>
+                            </div>
+                            <p class="text-slate-500 text-sm">No notifications yet</p>
+                            <p class="text-slate-400 text-xs mt-1">You'll see notifications here when they arrive</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="p-4 border-t border-slate-200">
+                    <button onclick="window.markAllAsRead()" class="block w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 px-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-medium text-center">
+                        Mark All as Read
+                    </button>
+                </div>
+            </div>
+        </aside>
     </div>
 
     <!-- JavaScript for Mobile Interactions -->
+    @vite('resources/js/app.js')
     <script>
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -469,6 +551,107 @@
             sidebar.classList.add('-translate-x-full');
             mobileOverlay.classList.add('hidden');
         });
+
+        // Notifications sidebar toggle
+        const notificationsBtn = document.getElementById('notifications-btn');
+        const notificationsSidebar = document.getElementById('notifications-sidebar');
+        const closeNotificationsBtn = document.getElementById('close-notifications');
+        const mainContentWrapper = document.getElementById('main-content-wrapper');
+        const notificationsList = document.getElementById('notifications-list');
+        const notificationsBadge = document.getElementById('notifications-badge');
+        const csrfToken = '{{ csrf_token() }}';
+
+        function toggleNotifications() {
+            const isHidden = notificationsSidebar.classList.contains('translate-x-full');
+            if (isHidden) {
+                notificationsSidebar.classList.remove('translate-x-full');
+                if (window.innerWidth < 1024) {
+                    mobileOverlay.classList.remove('hidden');
+                } else {
+                    mainContentWrapper.style.marginRight = `${notificationsSidebar.offsetWidth}px`;
+                }
+            } else {
+                notificationsSidebar.classList.add('translate-x-full');
+                if (window.innerWidth < 1024) {
+                    mobileOverlay.classList.add('hidden');
+                } else {
+                    mainContentWrapper.style.marginRight = '0';
+                }
+            }
+        }
+
+        notificationsBtn?.addEventListener('click', toggleNotifications);
+        closeNotificationsBtn?.addEventListener('click', toggleNotifications);
+
+        async function fetchUnreadNotifications() {
+            try {
+                const res = await fetch('{{ url('/notifications/unread') }}', { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                updateNotificationsUI(data.notifications, data.count);
+            } catch (e) { /* noop */ }
+        }
+
+        function updateNotificationsUI(items, count) {
+            if (!notificationsList) return;
+            notificationsList.innerHTML = '';
+            if (!items || items.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class=\"text-center py-8\">\n                        <div class=\"w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4\">\n                            <i class=\"ri-notification-off-line text-2xl text-slate-400\"></i>\n                        </div>\n                        <p class=\"text-slate-500 text-sm\">No notifications yet</p>\n                        <p class=\"text-slate-400 text-xs mt-1\">You'll see notifications here when they arrive</p>\n                    </div>`;
+            } else {
+                for (const n of items) {
+                    const iconClass = n.type === 'success' ? 'ri-check-line' : (n.type === 'warning' ? 'ri-alert-line' : 'ri-information-line');
+                    const item = document.createElement('div');
+                    item.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow';
+                    item.innerHTML = `
+                        <div class=\"flex items-start space-x-3\">\n                            <div class=\"w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0\">\n                                <i class=\"${iconClass} text-white\"></i>\n                            </div>\n                            <div class=\"flex-1\">\n                                <div class=\"flex items-center justify-between\">\n                                    <p class=\"font-semibold text-slate-800\">${escapeHtml(n.title || 'Notification')}</p>\n                                </div>\n                                <p class=\"text-sm text-slate-600 mt-1\">${escapeHtml(n.message || '')}</p>\n                                <p class=\"text-xs text-slate-500 mt-2\">just now</p>\n                                <div class=\"mt-2 flex gap-3\">\n                                    <button class=\"text-xs text-blue-600 hover:text-blue-800 underline\" onclick=\"window.markAsRead('${n.id}')\">Mark as read</button>\n                                    ${n.link ? `<a class=\\"text-xs text-blue-600 hover:text-blue-800 underline\\" href=\\"${n.link}\\">Open</a>` : ''}\n                                </div>\n                            </div>\n                        </div>`;
+                    notificationsList.prepend(item);
+                }
+            }
+            updateBadge(count ?? items.length);
+        }
+
+        function updateBadge(count) {
+            if (!notificationsBadge) return;
+            if (count > 0) {
+                notificationsBadge.textContent = count;
+                notificationsBadge.classList.remove('hidden');
+            } else {
+                notificationsBadge.classList.add('hidden');
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>\"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[s]));
+        }
+
+        window.markAsRead = async function(id) {
+            try {
+                await fetch(`{{ url('/notifications') }}/${id}/read`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' } });
+                fetchUnreadNotifications();
+            } catch (e) { /* noop */ }
+        }
+
+        window.markAllAsRead = async function() {
+            try {
+                await fetch(`{{ url('/notifications/read-all') }}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' } });
+                fetchUnreadNotifications();
+            } catch (e) { /* noop */ }
+        }
+
+        // Echo subscription for attendant
+        @auth
+        try {
+            const userId = {{ Auth::id() }};
+            window.Echo.private(`attendant.${userId}`)
+                .notification((notification) => {
+                    updateNotificationsUI([notification], (parseInt(notificationsBadge?.textContent || '0', 10) || 0) + 1);
+                });
+        } catch (_) {}
+        @endauth
+
+        // Initial load
+        fetchUnreadNotifications();
 
         // Auto-hide mobile sidebar on window resize
         window.addEventListener('resize', () => {

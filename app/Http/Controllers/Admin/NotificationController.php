@@ -27,4 +27,25 @@ class NotificationController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function getUnreadNotifications()
+    {
+        $user = Auth::user();
+        $notifications = $user->unreadNotifications()->latest()->take(20)->get()->map(function ($n) {
+            return [
+                'id' => $n->id,
+                'title' => $n->data['title'] ?? ($n->data['name'] ?? 'Notification'),
+                'message' => $n->data['message'] ?? null,
+                'type' => $n->data['type'] ?? 'info',
+                'link' => $n->data['link'] ?? null,
+                'created_at' => $n->created_at?->toISOString(),
+                'read' => (bool) $n->read_at,
+            ];
+        });
+
+        return response()->json([
+            'count' => $user->unreadNotifications()->count(),
+            'notifications' => $notifications,
+        ]);
+    }
 }

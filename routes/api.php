@@ -26,19 +26,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware(['auth:sanctum', 'role:admin|attendant'])->group(function () {
         Route::apiResource('plates', PlateApiController::class);
-        
+
         // Parking Sessions API routes
         Route::get('/sessions/active', [SessionApiController::class, 'active']);
         Route::get('/sessions/history', [SessionApiController::class, 'history']);
         Route::post('/sessions/start', [SessionApiController::class, 'start']);
         Route::post('/sessions/end/{session}', [SessionApiController::class, 'end']);
-        
+
         // Ticket API Routes (accessible by both admin and attendant)
         Route::get('tickets/{id}', [TicketApiController::class, 'show']);
         Route::post('tickets/generate', [TicketApiController::class, 'generate']);
     });
 
-    // Location API routes  
+    // Location API routes
     Route::post('/location/update', [LocationController::class, 'updateLocation']);
     Route::get('/location/current', [LocationController::class, 'getCurrentLocation']);
     Route::get('/location/history/{hours?}', [LocationController::class, 'getLocationHistory']);

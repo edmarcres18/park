@@ -9,6 +9,7 @@ use App\Models\Plate;
 use App\Models\ParkingRate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Events\ParkingEvent;
 
 class SessionController extends Controller
 {
@@ -18,10 +19,10 @@ class SessionController extends Controller
     public function index(): View
     {
         $sessions = ParkingSession::with('creator')->orderBy('created_at', 'desc')->get();
-        
+
         // Determine view based on user role
         $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
-        
+
         return view($viewPath, compact('sessions'));
     }
 
@@ -33,10 +34,10 @@ class SessionController extends Controller
         $plates = Plate::orderBy('number')->get();
         $parkingRates = ParkingRate::orderBy('name')->get();
         $activeRate = ParkingRate::getActiveRate();
-        
+
         // Determine view based on user role
         $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.create' : 'attendant.sessions.create';
-        
+
         return view($viewPath, compact('plates', 'parkingRates', 'activeRate'));
     }
 
@@ -46,6 +47,15 @@ class SessionController extends Controller
     public function store(StartSessionRequest $request): RedirectResponse
     {
         $session = ParkingSession::create($request->validated());
+        event(new ParkingEvent(
+            action: 'session_started',
+            title: 'New Parking Session',
+            message: "Plate #{$session->plate_number} session started.",
+            type: 'success',
+            link: route(auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index'),
+            initiatorId: auth()->id(),
+            targetRole: 'admin',
+        ));
         $route = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
         return redirect()->route($route)->with('success', 'Parking session started successfully!');
     }
@@ -58,10 +68,10 @@ class SessionController extends Controller
         $plates = Plate::orderBy('number')->get();
         $parkingRates = ParkingRate::orderBy('name')->get();
         $activeRate = ParkingRate::getActiveRate();
-        
+
         // Determine view based on user role
         $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.edit' : 'attendant.sessions.edit';
-        
+
         return view($viewPath, compact('session', 'plates', 'parkingRates', 'activeRate'));
     }
 
@@ -77,6 +87,15 @@ class SessionController extends Controller
         }
 
         $route = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
+        event(new ParkingEvent(
+            action: 'session_ended',
+            title: 'Parking Session Ended',
+            message: "Plate #{$session->plate_number} session ended.",
+            type: 'info',
+            link: route($route),
+            initiatorId: auth()->id(),
+            targetRole: 'admin',
+        ));
         return redirect()->route($route)->with('success', 'Parking session ended successfully!');
     }
 

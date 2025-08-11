@@ -80,6 +80,18 @@ class TicketApiController extends Controller
         // Generate QR data
         $ticket->update(['qr_data' => $ticket->generateQrData()]);
 
+        event(new \App\Events\ParkingEvent(
+            action: 'ticket_generated',
+            title: 'Ticket Generated',
+            message: "Ticket {$ticketNumber} created for plate #{$parkingSession->plate_number}.",
+            type: 'success',
+            link: (auth()->user() && auth()->user()->hasRole('admin'))
+                ? route('admin.tickets.show', $ticket)
+                : route('attendant.tickets.show', $ticket),
+            initiatorId: auth()->id(),
+            targetRole: 'admin',
+        ));
+
         $ticketConfig = $this->ticketConfigService->getConfig();
         return response()->json([
             'success' => true,

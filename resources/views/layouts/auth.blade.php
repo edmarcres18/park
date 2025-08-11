@@ -12,10 +12,10 @@
 </head>
 <body class="antialiased bg-gray-100">
     <div class="min-h-screen flex flex-col items-center justify-center">
-        @if(!empty($siteSettings->brand_logo))
+        <!-- @if(!empty($siteSettings->brand_logo))
             <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-20 h-20 object-contain mb-4 rounded-xl">
         @endif
-        <h1 class="text-2xl font-bold mb-2">{{ $siteSettings->app_name ?? config('app.name', 'Laravel') }}</h1>
+        <h1 class="text-2xl font-bold mb-2">{{ $siteSettings->app_name ?? config('app.name', 'Laravel') }}</h1> -->
         @yield('content')
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

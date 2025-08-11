@@ -107,6 +107,16 @@ class SessionApiController extends Controller
             $session = ParkingSession::create($request->validated());
             $session->load('creator');
 
+            event(new \App\Events\ParkingEvent(
+                action: 'session_started',
+                title: 'New Parking Session',
+                message: "Plate #{$session->plate_number} session started.",
+                type: 'success',
+                link: route('attendant.sessions.index'),
+                initiatorId: auth()->id(),
+                targetRole: 'admin',
+            ));
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Parking session started successfully!',
@@ -156,6 +166,16 @@ class SessionApiController extends Controller
             }
 
             $session->load('creator');
+
+            event(new \App\Events\ParkingEvent(
+                action: 'session_ended',
+                title: 'Parking Session Ended',
+                message: "Plate #{$session->plate_number} session ended.",
+                type: 'info',
+                link: route('attendant.sessions.index'),
+                initiatorId: auth()->id(),
+                targetRole: 'admin',
+            ));
 
             return response()->json([
                 'status' => 'success',

@@ -9,6 +9,8 @@ use App\Listeners\LogSuccessfulLogin;
 use App\Listeners\LogFailedLogin;
 use App\Listeners\LogSuccessfulLogout;
 use App\Listeners\LogAuthActivity;
+use App\Events\ParkingEvent;
+use App\Listeners\SendParkingNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -21,13 +23,17 @@ class EventServiceProvider extends ServiceProvider
         Login::class => [
             LogSuccessfulLogin::class,
         ],
-        
+
         'Illuminate\Auth\Events\Failed' => [
             'App\Listeners\LogFailedLogin',
         ],
 
         Logout::class => [
             LogSuccessfulLogout::class,
+        ],
+
+        ParkingEvent::class => [
+            SendParkingNotification::class,
         ],
     ];
 

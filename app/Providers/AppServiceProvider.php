@@ -27,8 +27,15 @@ class AppServiceProvider extends ServiceProvider
 
         // Inject site settings into all views
         View::composer('*', function ($view) {
-            $appName = SiteSetting::getValue('app_name', config('app.name'));
-            $brandLogo = SiteSetting::getValue('brand_logo', null);
+            try {
+                $appName = SiteSetting::getValue('app_name', config('app.name'));
+                $brandLogo = SiteSetting::getValue('brand_logo', null);
+            } catch (\Throwable $e) {
+                // During testing with in-memory DB, migrations may not have run yet
+                $appName = config('app.name');
+                $brandLogo = null;
+            }
+
             $siteSettings = (object) [
                 'app_name' => $appName,
                 'brand_logo' => $brandLogo,

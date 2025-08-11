@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ParkingRate extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -108,24 +108,24 @@ class ParkingRate extends Model
         if (!$this->grace_period) {
             return 'No grace period';
         }
-        
+
         $minutes = $this->grace_period;
         if ($minutes >= 60) {
             $hours = floor($minutes / 60);
             $remainingMinutes = $minutes % 60;
-            
+
             if ($remainingMinutes > 0) {
                 return "{$hours}h {$remainingMinutes}m";
             }
             return "{$hours}h";
         }
-        
+
         return "{$minutes}m";
     }
 
     /**
      * Calculate parking fee based on duration.
-     * 
+     *
      * @param int $durationMinutes
      * @return float
      */
@@ -135,11 +135,11 @@ class ParkingRate extends Model
         if ($this->grace_period && $durationMinutes <= $this->grace_period) {
             return 0.00;
         }
-        
-        $chargeableMinutes = $this->grace_period 
+
+        $chargeableMinutes = $this->grace_period
             ? max(0, $durationMinutes - $this->grace_period)
             : $durationMinutes;
-            
+
         if ($this->rate_type === 'hourly') {
             // Round up to the nearest hour
             $hours = ceil($chargeableMinutes / 60);

@@ -145,7 +145,21 @@ class TicketController extends Controller
         // Generate QR data
         $ticket->update(['qr_data' => $ticket->generateQrData()]);
 
-        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket generated successfully.');
+        event(new \App\Events\ParkingEvent(
+            action: 'ticket_generated',
+            title: 'Ticket Generated',
+            message: "Ticket {$ticketNumber} created for plate #{$parkingSession->plate_number}.",
+            type: 'success',
+            link: auth()->user() && auth()->user()->hasRole('admin')
+                ? route('admin.tickets.show', $ticket)
+                : route('attendant.tickets.show', $ticket),
+            initiatorId: auth()->id(),
+            targetRole: 'admin',
+        ));
+
+        return redirect()
+            ->route(auth()->user() && auth()->user()->hasRole('admin') ? 'admin.tickets.show' : 'attendant.tickets.show', $ticket)
+            ->with('success', 'Ticket generated successfully.');
     }
 
     /**
@@ -252,7 +266,9 @@ class TicketController extends Controller
             'success' => true,
             'message' => 'Ticket generated successfully',
             'ticket' => $ticket->load(['parkingSession.creator', 'parkingSession.parkingRate']),
-            'print_url' => route('tickets.print', $ticket)
+            'print_url' => (auth()->user() && auth()->user()->hasRole('admin'))
+                ? route('admin.tickets.print', $ticket)
+                : route('attendant.tickets.print', $ticket)
         ]);
     }
 

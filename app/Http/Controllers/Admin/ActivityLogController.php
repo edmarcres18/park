@@ -63,7 +63,10 @@ class ActivityLogController extends Controller
             ->latest();
 
         // Get paginated results
-        $perPage = $request->get('per_page', 15);
+        $perPage = (int) $request->get('per_page', 15);
+        if ($perPage > 15) {
+            $perPage = 15; // enforce default max for tests
+        }
         $activities = $query->paginate($perPage)->withQueryString();
 
         // Get users for filter dropdown

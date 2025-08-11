@@ -129,8 +129,19 @@ class Ticket extends Model
         }
 
         $date = now()->format('dmy');
-        $ticketNumber = $prefix . $cleanPlateNumber . $date;
-        return $ticketNumber;
+        $base = $prefix . $cleanPlateNumber . $date;
+
+        // Derive a sequence to ensure uniqueness for the same plate and day
+        $sequence = (int) self::where('ticket_number', 'like', $base . '%')->count() + 1;
+        $candidate = $base . str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
+
+        // In rare race conditions, increment until unique
+        while (self::where('ticket_number', $candidate)->exists()) {
+            $sequence++;
+            $candidate = $base . str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
+        }
+
+        return $candidate;
     }
 
     /**

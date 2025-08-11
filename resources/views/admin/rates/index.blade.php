@@ -16,7 +16,7 @@
                     <p class="mt-2 text-gray-600">Configure and manage parking rates for your facility</p>
                 </div>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                    <a href="{{ route('admin.rates.create') }}" 
+                    <a href="{{ route('admin.rates.create') }}"
                        class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 shadow-lg">
                         <i class="ri-add-circle-line mr-2"></i>
                         Add New Rate
@@ -37,7 +37,7 @@
                         Currently Active Rate: {{ $activeRate->name ?: 'Rate #' . $activeRate->id }}
                     </h3>
                     <div class="mt-1 text-sm text-green-700">
-                        <span class="font-semibold">{{ $activeRate->formattedRateAmount }}</span> 
+                        <span class="font-semibold">{{ $activeRate->formattedRateAmount }}</span>
                         per {{ $activeRate->rate_type === 'hourly' ? 'hour' : 'minute' }}
                         @if($activeRate->grace_period)
                             • {{ $activeRate->formattedGracePeriod }} grace period
@@ -102,7 +102,7 @@
                                             #{{ $rate->id }}
                                         </div>
                                     </td>
-                                    
+
                                     <td class="px-6 py-4">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -123,7 +123,7 @@
 
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-2">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                                 {{ $rate->rate_type === 'hourly' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
                                                 <i class="{{ $rate->rate_type === 'hourly' ? 'ri-time-line' : 'ri-timer-2-line' }} mr-1"></i>
                                                 {{ $rate->rateTypeLabel }}
@@ -165,7 +165,7 @@
                                                     <form action="{{ route('admin.rates.activate', $rate) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('PUT')
-                                                        <button type="submit" 
+                                                        <button type="submit"
                                                                 class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1 transition-colors duration-200"
                                                                 onclick="return confirm('Are you sure you want to activate this rate? This will deactivate all other rates.')">
                                                             <i class="ri-play-circle-line mr-1"></i>
@@ -173,18 +173,18 @@
                                                         </button>
                                                     </form>
                                                 @endif
-                                                
-                                                <a href="{{ route('admin.rates.edit', $rate) }}" 
+
+                                                <a href="{{ route('admin.rates.edit', $rate) }}"
                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors duration-200">
                                                     <i class="ri-edit-line mr-1"></i>
                                                     Edit
                                                 </a>
-                                                
+
                                                 @if(!$rate->is_active)
                                                     <form action="{{ route('admin.rates.destroy', $rate) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" 
+                                                        <button type="submit"
                                                                 class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors duration-200"
                                                                 onclick="return confirm('Are you sure you want to delete this rate? This action cannot be undone.')">
                                                             <i class="ri-delete-bin-line mr-1"></i>
@@ -213,7 +213,7 @@
                     </div>
                     <h3 class="text-lg font-medium text-gray-900 mb-2">No Parking Rates Found</h3>
                     <p class="text-gray-500 mb-6">Get started by creating your first parking rate configuration.</p>
-                    <a href="{{ route('admin.rates.create') }}" 
+                    <a href="{{ route('admin.rates.create') }}"
                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 shadow-lg">
                         <i class="ri-add-circle-line mr-2"></i>
                         Create First Rate

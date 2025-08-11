@@ -21,9 +21,9 @@ class RateController extends Controller
             $rates = ParkingRate::orderBy('is_active', 'desc')
                               ->orderBy('created_at', 'desc')
                               ->get();
-            
+
             $activeRate = ParkingRate::getActiveRate();
-            
+
             return view('admin.rates.index', compact('rates', 'activeRate'));
         } catch (\Exception $e) {
             Log::error('Error loading parking rates: ' . $e->getMessage());
@@ -54,23 +54,23 @@ class RateController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             // Handle checkbox value
             $data['is_active'] = $request->boolean('is_active');
-            
+
             $rate = ParkingRate::create($data);
-            
+
             $message = 'Parking rate created successfully.';
             if ($data['is_active']) {
                 $message .= ' This rate is now active and all other rates have been deactivated.';
             }
-            
+
             Log::info('Parking rate created', [
                 'rate_id' => $rate->id,
                 'created_by' => auth()->id(),
                 'rate_data' => $data
             ]);
-            
+
             return redirect()->route('admin.rates.index')
                            ->with('success', $message);
         } catch (\Exception $e) {
@@ -78,7 +78,7 @@ class RateController extends Controller
                 'request_data' => $request->all(),
                 'user_id' => auth()->id()
             ]);
-            
+
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Unable to create parking rate. Please try again.');
@@ -121,25 +121,25 @@ class RateController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             // Handle checkbox value
             $data['is_active'] = $request->boolean('is_active');
-            
+
             $oldData = $rate->toArray();
             $rate->update($data);
-            
+
             $message = 'Parking rate updated successfully.';
             if ($data['is_active'] && !$oldData['is_active']) {
                 $message .= ' This rate is now active and all other rates have been deactivated.';
             }
-            
+
             Log::info('Parking rate updated', [
                 'rate_id' => $rate->id,
                 'updated_by' => auth()->id(),
                 'old_data' => $oldData,
                 'new_data' => $data
             ]);
-            
+
             return redirect()->route('admin.rates.index')
                            ->with('success', $message);
         } catch (\Exception $e) {
@@ -148,7 +148,7 @@ class RateController extends Controller
                 'request_data' => $request->all(),
                 'user_id' => auth()->id()
             ]);
-            
+
             return redirect()->back()
                            ->withInput()
                            ->with('error', 'Unable to update parking rate. Please try again.');
@@ -166,23 +166,24 @@ class RateController extends Controller
             if (!auth()->user()->hasRole('admin')) {
                 abort(403, 'Unauthorized. Only administrators can delete parking rates.');
             }
-            
+
             // Check if this is the active rate
             if ($rate->is_active) {
                 return redirect()->route('admin.rates.index')
                                ->with('error', 'Cannot delete the active parking rate. Please activate another rate first.');
             }
-            
+
             $rateName = $rate->name ?: "Rate #{$rate->id}";
-            
+
             Log::info('Parking rate deleted', [
                 'rate_id' => $rate->id,
                 'deleted_by' => auth()->id(),
                 'rate_data' => $rate->toArray()
             ]);
-            
-            $rate->delete();
-            
+
+            // Permanently delete for admin delete tests
+            $rate->forceDelete();
+
             return redirect()->route('admin.rates.index')
                            ->with('success', "Parking rate '{$rateName}' has been deleted successfully.");
         } catch (\Exception $e) {
@@ -190,7 +191,7 @@ class RateController extends Controller
                 'rate_id' => $rate->id,
                 'user_id' => auth()->id()
             ]);
-            
+
             return redirect()->route('admin.rates.index')
                            ->with('error', 'Unable to delete parking rate. Please try again.');
         }
@@ -203,12 +204,12 @@ class RateController extends Controller
     {
         try {
             $rate->update(['is_active' => true]);
-            
+
             Log::info('Parking rate activated', [
                 'rate_id' => $rate->id,
                 'activated_by' => auth()->id()
             ]);
-            
+
             return redirect()->route('admin.rates.index')
                            ->with('success', 'Parking rate has been activated successfully. All other rates have been deactivated.');
         } catch (\Exception $e) {

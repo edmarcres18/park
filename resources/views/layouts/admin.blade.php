@@ -316,10 +316,10 @@
                             <i class="ri-car-line text-xl mr-4"></i>
                             <span class="font-medium">Plate Records</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="plate-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.plates.*') ? 'rotate-180' : '' }}" id="plate-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="plate-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="plate-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.plates.*') ? '' : 'hidden' }}">
                             <a href="{{ route('admin.plates.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.plates.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-eye-line text-sm mr-3"></i>
                                 <span class="text-sm">View All Plates</span>
@@ -339,10 +339,10 @@
                             <i class="ri-settings-2-line text-xl mr-4"></i>
                             <span class="font-medium">Parking Rates</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="rates-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.rates.*') ? 'rotate-180' : '' }}" id="rates-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="rates-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="rates-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.rates.*') ? '' : 'hidden' }}">
                             <a href="{{ route('admin.rates.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.rates.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-list-check text-sm mr-3"></i>
                                 <span class="text-sm">View All Rates</span>
@@ -362,10 +362,10 @@
                             <i class="ri-time-line text-xl mr-4"></i>
                             <span class="font-medium">Parking Sessions</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="sessions-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="sessions-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="sessions-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.sessions.*') ? '' : 'hidden' }}">
                             <a href="{{ route('admin.sessions.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.sessions.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-list-check text-sm mr-3"></i>
                                 <span class="text-sm">All Sessions</span>
@@ -385,10 +385,10 @@
                             <i class="ri-ticket-2-line text-xl mr-4"></i>
                             <span class="font-medium">Ticketing</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="ticketing-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.tickets.*') ? 'rotate-180' : '' }}" id="ticketing-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="ticketing-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="ticketing-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.tickets.*') ? '' : 'hidden' }}">
                             <a href="{{ route('admin.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.tickets.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-list-check text-sm mr-3"></i>
                                 <span class="text-sm">All Tickets</span>
@@ -404,10 +404,10 @@
                             <i class="ri-bar-chart-2-line text-xl mr-4"></i>
                             <span class="font-medium">Reports & Sales</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="reports-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.reports.*') ? 'rotate-180' : '' }}" id="reports-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="reports-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="reports-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.reports.*') ? '' : 'hidden' }}">
                             <a href="{{ route('admin.reports.sales') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.reports.sales') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-calendar-line text-sm mr-3"></i>
                                 <span class="text-sm">Daily Sales</span>
@@ -423,10 +423,10 @@
                             <i class="ri-team-line text-xl mr-4"></i>
                             <span class="font-medium">User Management</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="users-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.users.*') ? 'rotate-180' : '' }}" id="users-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="users-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="users-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.users.*') ? '' : 'hidden' }}">
                             <a href="{{ route('admin.users.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-user-add-line text-sm mr-3"></i>
                                 <span class="text-sm">Create New User</span>
@@ -483,14 +483,18 @@
                 <!-- Settings -->
                 <div class="space-y-1">
                     <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}"  onclick="toggleSubmenu('settings-submenu')">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}"  onclick="toggleSubmenu('settings-submenu')">
                             <i class="ri-settings-3-line text-xl mr-4"></i>
                             <span class="font-medium">Settings</span>
                             <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="settings-submenu-icon"></i>
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'rotate-180' : '' }}" id="settings-submenu-icon"></i>
                             </div>
                         </button>
-                        <div id="settings-submenu" class="hidden ml-8 space-y-1 mt-2">
+                        <div id="settings-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? '' : 'hidden' }}">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
+                                <i class="ri-user-settings-line text-sm mr-3"></i>
+                                <span class="text-sm">My Profile</span>
+                            </a>
                             <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-apps-line text-sm mr-3"></i>
                                 <span class="text-sm">Site Settings</span>
@@ -564,9 +568,7 @@
                                 $unreadNotifications = Auth::user()->unreadNotifications;
                                 $unreadCount = $unreadNotifications->count();
                             @endphp
-                            @if($unreadCount > 0)
-                                <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">{{ $unreadCount }}</span>
-                            @endif
+                            <span id="notifications-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center {{ $unreadCount > 0 ? '' : 'hidden' }}">{{ $unreadCount }}</span>
                         </button>
 
                         <!-- Profile -->
@@ -602,7 +604,7 @@
                 </div>
 
                 <!-- Notifications List -->
-                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="notifications-list">
                     @php
                         $notifications = Auth::user()->notifications()->latest()->take(10)->get();
                     @endphp
@@ -625,7 +627,7 @@
                                     </p>
                                     <p class="text-xs text-slate-500 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
                                     @if(!$notification->read_at)
-                                        <button onclick="markAsRead('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-800 underline mt-2">
+                                        <button onclick="window.markAsRead('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-800 underline mt-2">
                                             Mark as read
                                         </button>
                                     @endif
@@ -652,6 +654,8 @@
             </div>
         </aside>
     </div>
+
+    @vite('resources/js/app.js')
 
     <!-- JavaScript for Mobile Interactions -->
     <script>
@@ -681,6 +685,9 @@
         const notificationsSidebar = document.getElementById('notifications-sidebar');
         const closeNotificationsBtn = document.getElementById('close-notifications');
         const mainContentWrapper = document.getElementById('main-content-wrapper');
+        const notificationsList = document.getElementById('notifications-list');
+        const notificationsBadge = document.getElementById('notifications-badge');
+        const csrfToken = '{{ csrf_token() }}';
 
         function toggleNotifications() {
             const isHidden = notificationsSidebar.classList.contains('translate-x-full');
@@ -704,6 +711,84 @@
 
         notificationsBtn?.addEventListener('click', toggleNotifications);
         closeNotificationsBtn?.addEventListener('click', toggleNotifications);
+
+        async function fetchUnreadNotifications() {
+            try {
+                const res = await fetch('{{ url('/notifications/unread') }}', { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                updateNotificationsUI(data.notifications, data.count);
+            } catch (e) { /* noop */ }
+        }
+
+        function updateNotificationsUI(items, count) {
+            if (!notificationsList) return;
+            notificationsList.innerHTML = '';
+            if (!items || items.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class=\"text-center py-8\">\n                        <div class=\"w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4\">\n                            <i class=\"ri-notification-off-line text-2xl text-slate-400\"></i>\n                        </div>\n                        <p class=\"text-slate-500 text-sm\">No notifications yet</p>\n                        <p class=\"text-slate-400 text-xs mt-1\">You'll see notifications here when they arrive</p>\n                    </div>`;
+            } else {
+                for (const n of items) {
+                    const iconClass = n.type === 'success' ? 'ri-check-line' : (n.type === 'warning' ? 'ri-alert-line' : 'ri-information-line');
+                    const item = document.createElement('div');
+                    item.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow';
+                    item.innerHTML = `
+                        <div class=\"flex items-start space-x-3\">\n                            <div class=\"w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0\">\n                                <i class=\"${iconClass} text-white\"></i>\n                            </div>\n                            <div class=\"flex-1\">\n                                <div class=\"flex items-center justify-between\">\n                                    <p class=\"font-semibold text-slate-800\">${escapeHtml(n.title || 'Notification')}</p>\n                                </div>\n                                <p class=\"text-sm text-slate-600 mt-1\">${escapeHtml(n.message || '')}</p>\n                                <p class=\"text-xs text-slate-500 mt-2\">just now</p>\n                                <div class=\"mt-2 flex gap-3\">\n                                    <button class=\"text-xs text-blue-600 hover:text-blue-800 underline\" onclick=\"window.markAsRead('${n.id}')\">Mark as read</button>\n                                    ${n.link ? `<a class=\\"text-xs text-blue-600 hover:text-blue-800 underline\\" href=\\"${n.link}\\">Open</a>` : ''}\n                                </div>\n                            </div>\n                        </div>`;
+                    notificationsList.prepend(item);
+                }
+            }
+            updateBadge(count ?? items.length);
+        }
+
+        function updateBadge(count) {
+            if (!notificationsBadge) return;
+            if (count > 0) {
+                notificationsBadge.textContent = count;
+                notificationsBadge.classList.remove('hidden');
+            } else {
+                notificationsBadge.classList.add('hidden');
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>\"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[s]));
+        }
+
+        window.markAsRead = async function(id) {
+            try {
+                await fetch(`{{ url('/notifications') }}/${id}/read`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' } });
+                fetchUnreadNotifications();
+            } catch (e) { /* noop */ }
+        }
+
+        window.markAllAsRead = async function() {
+            try {
+                await fetch(`{{ url('/notifications/read-all') }}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' } });
+                fetchUnreadNotifications();
+            } catch (e) { /* noop */ }
+        }
+
+        // Setup Echo subscriptions
+        @auth
+        try {
+            const userId = {{ Auth::id() }};
+            const isAdmin = {{ Auth::user()->hasRole('admin') ? 'true' : 'false' }};
+            if (isAdmin) {
+                window.Echo.private('admin')
+                    .notification((notification) => {
+                        updateNotificationsUI([notification], (parseInt(notificationsBadge?.textContent || '0', 10) || 0) + 1);
+                    });
+            } else {
+                window.Echo.private(`attendant.${userId}`)
+                    .notification((notification) => {
+                        updateNotificationsUI([notification], (parseInt(notificationsBadge?.textContent || '0', 10) || 0) + 1);
+                    });
+            }
+        } catch (_) {}
+        @endauth
+
+        // Initial load
+        fetchUnreadNotifications();
 
         // Hide sidebar when clicking overlay
         mobileOverlay?.addEventListener('click', () => {
