@@ -1,0 +1,10 @@
+.git
+node_modules
+vendor
+public/storage
+storage/logs
+storage/framework
+.vscode
+.DS_Store
+.env
+
