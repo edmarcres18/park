@@ -8,16 +8,23 @@ use App\Http\Requests\EndSessionRequest;
 use App\Models\ParkingSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\ParkingRate;
 
 class SessionApiController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:sanctum', 'role:attendant']);
+    }
+
     /**
      * Get all active parking sessions.
      */
-    public function active(): JsonResponse
+    public function active(Request $request): JsonResponse
     {
         $sessions = ParkingSession::with('creator')
             ->active()
+            ->where('created_by', auth()->id())
             ->orderBy('start_time', 'desc')
             ->get()
             ->map(function ($session) {
@@ -54,8 +61,8 @@ class SessionApiController extends Controller
     public function history(Request $request): JsonResponse
     {
         $query = ParkingSession::with('creator')
-            ->completed()
-            ->orderBy('end_time', 'desc');
+            ->where('created_by', auth()->id())
+            ->orderBy('created_at', 'desc');
 
         // Optional pagination
         $perPage = $request->get('per_page', 15);
@@ -68,7 +75,7 @@ class SessionApiController extends Controller
                 'customer_name' => $session->customer_name,
                 'customer_contact' => $session->customer_contact,
                 'start_time' => $session->start_time->format('Y-m-d H:i:s'),
-                'end_time' => $session->end_time->format('Y-m-d H:i:s'),
+                'end_time' => $session->end_time ? $session->end_time->format('Y-m-d H:i:s') : null,
                 'duration_minutes' => $session->duration_minutes,
                 'formatted_duration' => $session->formatted_duration,
                 'amount_paid' => $session->amount_paid,
@@ -207,5 +214,33 @@ class SessionApiController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * List available parking rates (active first).
+     */
+    public function rates(): JsonResponse
+    {
+        $rates = ParkingRate::query()
+            ->orderByDesc('is_active')
+            ->orderBy('name')
+            ->get()
+            ->map(function (ParkingRate $rate) {
+                return [
+                    'id' => $rate->id,
+                    'name' => $rate->name ?: 'Rate #' . $rate->id,
+                    'rate_type' => $rate->rate_type,
+                    'rate_amount' => (float) $rate->rate_amount,
+                    'formatted_rate_amount' => $rate->formatted_rate_amount,
+                    'grace_period' => (int) ($rate->grace_period ?? 0),
+                    'formatted_grace_period' => $rate->formatted_grace_period,
+                    'is_active' => (bool) $rate->is_active,
+                ];
+            });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $rates,
+        ]);
     }
 }

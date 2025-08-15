@@ -26,6 +26,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
+        if ($user->status !== 'active') {
+            return response()->json(['message' => 'Your account is not active.'], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -82,5 +86,19 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        $user->load('roles');
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'status' => $user->status,
+            'roles' => $user->roles->pluck('name'),
+        ]);
     }
 }

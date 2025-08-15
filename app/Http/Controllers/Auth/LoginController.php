@@ -111,7 +111,7 @@ class LoginController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         $user = Auth::user();
-        
+
         if ($user) {
             logger('User logged out', [
                 'user_id' => $user->id,

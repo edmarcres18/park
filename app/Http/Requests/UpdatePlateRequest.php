@@ -23,7 +23,7 @@ class UpdatePlateRequest extends FormRequest
     {
         return [
             'number' => 'required|string|max:255|unique:plates,number,' . $this->route('plate'),
-            'owner_name' => 'required|string|max:255',
+            'owner_name' => 'nullable|string|max:255',
             'vehicle_type' => 'required|string|max:255',
         ];
     }

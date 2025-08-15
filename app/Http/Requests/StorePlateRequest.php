@@ -23,7 +23,7 @@ class StorePlateRequest extends FormRequest
     {
         return [
             'number' => 'required|unique:plates|string|max:255',
-            'owner_name' => 'required|string|max:255',
+            'owner_name' => 'nullable|string|max:255',
             'vehicle_type' => 'required|string|max:255',
         ];
     }

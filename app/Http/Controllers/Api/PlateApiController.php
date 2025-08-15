@@ -10,6 +10,12 @@ use App\Http\Resources\PlateResource;
 
 class PlateApiController extends Controller
 {
+    public function __construct()
+    {
+        // Allow attendants to list/create/show; restrict update/delete to admin only via routes/middleware
+        $this->middleware(['auth:sanctum']);
+    }
+
     /**
      * Display a listing of the resource.
      */

@@ -279,29 +279,6 @@
                     </div>
                 </a>
 
-                <!-- Sessions -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('sessions-submenu')">
-                            <i class="ri-time-line text-xl mr-4"></i>
-                            <span class="font-medium">Sessions</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="sessions-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.sessions.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('attendant.sessions.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-list-check text-sm mr-3"></i>
-                                <span class="text-sm">All Sessions</span>
-                            </a>
-                            <a href="{{ route('attendant.sessions.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.create') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Start New Session</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Plates -->
                 <div class="space-y-1">
                     <div class="group">
@@ -320,6 +297,29 @@
                             <a href="{{ route('attendant.plates.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.plates.create') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-add-line text-sm mr-3"></i>
                                 <span class="text-sm">Add New Plate</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sessions -->
+                <div class="space-y-1">
+                    <div class="group">
+                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('sessions-submenu')">
+                            <i class="ri-time-line text-xl mr-4"></i>
+                            <span class="font-medium">Sessions</span>
+                            <div class="ml-auto">
+                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
+                            </div>
+                        </button>
+                        <div id="sessions-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.sessions.*') ? '' : 'hidden' }}">
+                            <a href="{{ route('attendant.sessions.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
+                                <i class="ri-list-check text-sm mr-3"></i>
+                                <span class="text-sm">All Sessions</span>
+                            </a>
+                            <a href="{{ route('attendant.sessions.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.create') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
+                                <i class="ri-add-line text-sm mr-3"></i>
+                                <span class="text-sm">Start New Session</span>
                             </a>
                         </div>
                     </div>
@@ -358,10 +358,6 @@
                             <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
                                 <i class="ri-user-settings-line text-sm mr-3"></i>
                                 <span class="text-sm">Profile</span>
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200">
-                                <i class="ri-notification-line text-sm mr-3"></i>
-                                <span class="text-sm">Notifications</span>
                             </a>
                         </div>
                     </div>

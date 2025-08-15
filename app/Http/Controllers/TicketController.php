@@ -110,7 +110,7 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Ticket already exists for this parking session.');
         }
 
-        $ticketNumber = Ticket::generateTicketNumber($parkingSession->plate_number);
+        $ticketNumber = Ticket::generateTicketNumber($parkingSession->id, $parkingSession->plate_number);
         $currentRate = $parkingSession->parkingRate ? $parkingSession->parkingRate->rate_amount : 0;
 
         // Get default template if none specified
@@ -245,7 +245,7 @@ class TicketController extends Controller
             ]);
         }
 
-        $ticketNumber = Ticket::generateTicketNumber($parkingSession->plate_number);
+        $ticketNumber = Ticket::generateTicketNumber($parkingSession->id, $parkingSession->plate_number);
         $currentRate = $parkingSession->parkingRate ? $parkingSession->parkingRate->rate_amount : 0;
 
         $ticket = Ticket::create([

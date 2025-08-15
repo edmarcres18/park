@@ -1,96 +1,140 @@
-@extends('layouts.auth')
 
-@section('title', 'Login')
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign In — Parking System</title>
+  <!-- Google Font: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 (CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="" crossorigin="anonymous" />
+  <!-- App styles via Vite (Tailwind compiled) -->
+  @vite([
+    'resources/css/app.css',
+    'resources/js/app.js',
+  ])
+  <style>
+    :root{--brand:#0ea5a4;--muted:#6b7280}
+    body{font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    /* small helper to make bootstrap form-control match tailwind look */
+    .form-control:focus{box-shadow:none;border-color:rgba(14,165,164,.9)}
+    [x-cloak]{display:none !important}
+  </style>
+</head>
+<body class="bg-gradient-to-b from-white via-slate-50 to-slate-100 min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-md w-full">
+    <div class="bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden">
+      <div class="p-6 sm:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center" style="background:linear-gradient(135deg,#06b6d4, #0ea5a4);">
+            @if(!empty($siteSettings->brand_logo))
+              <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-28 h-28 object-contain" style="max-width:112px;max-height:112px;" />
+            @else
+              <i class="fa-solid fa-fw fa-car text-white text-lg"></i>
+            @endif
+          </div>
+          <div>
+            <h1 class="text-lg font-semibold">{{$siteSettings->app_name ?? config('app.name')}}</h1>
+            <p class="text-sm text-gray-500">Sign in to manage parking sessions & tickets</p>
+          </div>
+        </div>
 
-@section('content')
-<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
-    <main class="grid grid-cols-1 md:grid-cols-2 bg-white rounded-2xl shadow-xl ring-1 ring-gray-100 overflow-hidden w-full max-w-5xl">
-        <!-- Left Panel -->
-        <section class="left-panel relative text-white p-10 md:p-12 flex flex-col items-center justify-center text-center bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-600">
-            <div class="absolute inset-0 opacity-20 pointer-events-none" aria-hidden="true"></div>
-            <div class="max-w-sm mx-auto">
-                <div class="inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/90 ring-2 ring-white/60 shadow-xl mb-6">
-                    <span class="inline-flex">
-                        @if(!empty($siteSettings->brand_logo))
-                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-md">
-                        @else
-                            <span class="text-blue-700 font-semibold text-xl">Your Brand</span>
-                        @endif
-                    </span>
-                </div>
-                <h1 class="text-3xl font-semibold tracking-tight mb-3">New here?</h1>
-                <p class="text-white/90 mb-8 leading-relaxed">Sign up and discover a great amount of new opportunities!</p>
-                <a href="{{ route('register') }}" class="inline-flex items-center justify-center border-2 border-white rounded-full py-2.5 px-10 font-semibold hover:bg-white hover:text-blue-700 transition-colors duration-300">
-                    SIGN UP
-                </a>
+        @auth
+          <div class="alert alert-info" role="alert">
+            You are already signed in. Go to your dashboard.
+            @if(auth()->user()->hasRole('admin'))
+              <a class="ms-1" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+            @elseif(auth()->user()->hasRole('attendant'))
+              <a class="ms-1" href="{{ route('attendant.dashboard') }}">Attendant Dashboard</a>
+            @endif
+          </div>
+        @endauth
+
+        @guest
+        @if (session('success'))
+          <div class="alert alert-success" role="alert">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+          <div class="alert alert-danger" role="alert">
+            <ul class="mb-0">
+              @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+
+        <form class="space-y-4" x-data="{show:false, isSubmitting:false}" x-on:submit="isSubmitting = true" method="POST" action="{{ route('login') }}" autocomplete="on">
+          @csrf
+          <div>
+            <label class="form-label small mb-1">Email</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="fa-regular fa-envelope"></i></span>
+              <input type="email" name="email" class="form-control flex-1 rounded-start border ps-3" placeholder="you@example.com" value="{{ old('email') }}" required autocomplete="username" autofocus>
             </div>
-        </section>
+          </div>
 
-        <!-- Right Panel -->
-        <section class="right-panel p-8 sm:p-10">
-            <header class="mb-8">
-                <p class="text-sm text-gray-500 mb-1">Welcome back</p>
-                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Login to Your Account</h2>
-            </header>
+          <div>
+            <label class="form-label small mb-1">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-lock"></i></span>
+              <input :type="show ? 'text' : 'password'" name="password" class="form-control flex-1 rounded-start border ps-3" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="btn btn-outline-secondary border-start-0" x-on:click="show = !show">
+                <span x-text="show ? 'Hide' : 'Show'"></span>
+              </button>
+            </div>
+          </div>
 
-            <form method="POST" action="{{ route('login') }}" id="loginForm" class="grid gap-5">
-                @csrf
-                <div class="grid gap-2">
-                    <label for="email" class="text-sm font-medium text-gray-700">Email</label>
-                    <input id="email" type="email" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 focus:ring-red-500 @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@example.com" maxlength="255" spellcheck="false" autofocus aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}">
-                    @error('email')
-                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
+              <label class="form-check-label small text-muted" for="remember">Remember me</label>
+            </div>
+            @if (Route::has('password.request'))
+              <a class="small text-decoration-none" href="{{ route('password.request') }}">Forgot password?</a>
+            @endif
+          </div>
 
-                <div class="grid gap-2">
-                    <label for="password" class="text-sm font-medium text-gray-700">Password</label>
-                    <input id="password" type="password" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 focus:ring-red-500 @enderror" name="password" required autocomplete="current-password" placeholder="Enter your password" minlength="8" aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}">
-                    @error('password')
-                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+          <div>
+            <button type="submit" :disabled="isSubmitting" class="w-full btn btn-primary py-2 rounded-lg d-inline-flex align-items-center justify-content-center" style="background:linear-gradient(90deg,#06b6d4,#0ea5a4);border:none;">
+              <span x-cloak x-show="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span x-text="isSubmitting ? 'Signing in…' : 'Sign In'"></span>
+            </button>
+          </div>
+<!--
+          <div class="text-center text-muted small">or continue with</div>
 
-                <div class="flex items-center justify-between">
-                    <label class="inline-flex items-center gap-2">
-                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                        <span class="text-gray-700 text-sm">Remember me</span>
-                    </label>
-                </div>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" class="btn border rounded-lg py-2 flex items-center justify-center gap-2">
+              <i class="fa-brands fa-google"></i><span class="hidden sm:inline">Google</span>
+            </button>
+            <button type="button" class="btn border rounded-lg py-2 flex items-center justify-center gap-2">
+              <i class="fa-brands fa-facebook-f"></i><span class="hidden sm:inline">Facebook</span>
+            </button>
+          </div> -->
 
-                <div>
-                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-300 disabled:opacity-50" id="loginBtn">
-                        SIGN IN
-                    </button>
-                </div>
-            </form>
+          <p class="text-center text-sm text-gray-500 mt-3">Don't have an account?
+            @if (Route::has('register'))
+              <a href="{{ route('register') }}" class="font-medium text-teal-600">Create one</a>
+            @endif
+          </p>
+        </form>
+        @endguest
+      </div>
+    </div>
 
-            <script>
-                document.getElementById('loginForm').addEventListener('submit', function(e) {
-                    const btn = document.getElementById('loginBtn');
-                    btn.disabled = true;
-                    btn.textContent = 'SIGNING IN...';
+    <p class="text-center text-xs text-gray-400 mt-4">© <span id="year"></span> Parking System • Built for efficiency</p>
+  </div>
 
-                    // Re-enable button after 3 seconds to prevent indefinite disable
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.textContent = 'SIGN IN';
-                    }, 3000);
-                });
-
-                // Client-side validation
-                document.getElementById('email').addEventListener('blur', function() {
-                    const email = this.value;
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (email && !emailRegex.test(email)) {
-                        this.classList.add('border-red-500');
-                    } else {
-                        this.classList.remove('border-red-500');
-                    }
-                });
-            </script>
-        </section>
-    </main>
-</div>
-@endsection
-
+  <!-- Alpine.js for small interactivity -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
+  <!-- Bootstrap Bundle (with Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="" crossorigin="anonymous"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

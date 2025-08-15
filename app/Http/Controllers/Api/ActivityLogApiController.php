@@ -4,79 +4,70 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\Models\Activity;
-use App\Http\Resources\ActivityLogResource;
-use App\Models\User;
 
-/**
- * Activity Log API Controller
- * 
- *Provides JSON API endpoints for activity logs
- * with filtering and pagination capabilities.
- */
 class ActivityLogApiController extends Controller
 {
-    /**
-     * Display a paginated listing of activity logs with filters
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        // Check if user has admin role
-        if (!auth()->user()->hasRole('admin')) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->middleware(['auth:sanctum', 'role:admin']);
+    }
 
-        $query = Activity::with(['causer', 'subject'])
-            ->orderBy('created_at', 'desc');
+    /**
+     * List activity logs with optional filters: date_from, date_to, user_id, log_name.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $query = Activity::query()->latest('created_at');
 
-        // Apply date range filter
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            $query->whereDate('created_at', '>=', Carbon::parse($request->input('date_from'))->toDateString());
         }
-        
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            $query->whereDate('created_at', '<=', Carbon::parse($request->input('date_to'))->toDateString());
         }
-
-        // Apply user filter
         if ($request->filled('user_id')) {
-            $query->where('causer_id', $request->user_id)
-                  ->where('causer_type', User::class);
+            $query->where('causer_id', $request->integer('user_id'));
         }
-
-        // Apply model filter
-        if ($request->filled('model')) {
-            $modelMap = [
-                'user' => 'App\\Models\\User',
-                'plate' => 'App\\Models\\Plate',
-                'rate' => 'App\\Models\\Rate',
-                'session' => 'App\\Models\\Session',
-                'ticket' => 'App\\Models\\Ticket',
-            ];
-            
-            if ($request->model === 'authentication') {
-                $query->where('log_name', 'authentication');
-            } elseif (isset($modelMap[$request->model])) {
-                $query->where('subject_type', $modelMap[$request->model]);
-            }
-        }
-
-        // Apply log name filter
         if ($request->filled('log_name')) {
-            $query->where('log_name', $request->log_name);
+            $query->where('log_name', $request->input('log_name'));
         }
 
-        // Apply search filter
-        if ($request->filled('search')) {
-            $query->where('description', 'like', '%' . $request->search . '%');
-        }
+        $perPage = (int) $request->input('per_page', 15);
+        $paginator = $query->paginate($perPage)->appends($request->query());
 
-        $perPage = min($request->get('per_page', 20), 100); // Max 100 per page
-        $activities = $query->paginate($perPage)->withQueryString();
-
-        return ActivityLogResource::collection($activities);
+        return response()->json([
+            'data' => collect($paginator->items())->map(function (Activity $activity) {
+                return [
+                    'id' => $activity->id,
+                    'log_name' => $activity->log_name,
+                    'description' => $activity->description,
+                    'subject_type' => $activity->subject_type,
+                    'subject_id' => $activity->subject_id,
+                    'causer_type' => $activity->causer_type,
+                    'causer_id' => $activity->causer_id,
+                    'properties' => $activity->properties,
+                    'created_at' => optional($activity->created_at)->toDateTimeString(),
+                ];
+            }),
+            'links' => [
+                'first' => $paginator->url(1),
+                'last' => $paginator->url($paginator->lastPage()),
+                'prev' => $paginator->previousPageUrl(),
+                'next' => $paginator->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'from' => $paginator->firstItem(),
+                'last_page' => $paginator->lastPage(),
+                'path' => $paginator->path(),
+                'per_page' => $paginator->perPage(),
+                'to' => $paginator->lastItem(),
+                'total' => $paginator->total(),
+            ],
+        ]);
     }
 }
+

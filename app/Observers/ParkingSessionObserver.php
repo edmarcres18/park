@@ -34,7 +34,7 @@ class ParkingSessionObserver
      */
     private function generateTicket(ParkingSession $parkingSession): void
     {
-        $ticketNumber = Ticket::generateTicketNumber();
+        $ticketNumber = Ticket::generateTicketNumber($parkingSession->id, $parkingSession->plate_number);
         $currentRate = $parkingSession->parkingRate ? $parkingSession->parkingRate->rate_amount : 0;
 
         $ticket = Ticket::create([

@@ -97,18 +97,28 @@ class Ticket extends Model
      * If called as an instance method, always use the related plate's number if available.
      * If called statically, use the provided plate number string.
      */
-    public static function generateTicketNumber(string $plateNumber = null, self $ticket = null): string
+    /**
+     * Generate a unique ticket number.
+     * Format: PREFIX + PARKING_SESSION_ID + CLEAN_PLATE + mmddyy + SEQ
+     *
+     * @param int|null $parkingSessionId
+     * @param string|null $plateNumber
+     */
+    public static function generateTicketNumber(int $parkingSessionId = null, string $plateNumber = null, self $ticket = null): string
     {
         $prefix = (string) config('app.ticket_prefix', 'MHRPS');
         if (empty($prefix)) {
             $prefix = 'MHRPS';
         }
 
-        // If a Ticket instance is provided, use its related plate's number if available
+        // If a Ticket instance is provided, use its related properties if available
         if ($ticket instanceof self && $ticket->relationLoaded('plate') && $ticket->plate) {
             $plateNumber = $ticket->plate->number;
         } elseif ($ticket instanceof self && $ticket->plate_number) {
             $plateNumber = $ticket->plate_number;
+        }
+        if ($ticket instanceof self && $parkingSessionId === null && $ticket->parking_session_id) {
+            $parkingSessionId = (int) $ticket->parking_session_id;
         }
 
         // If plate number is missing or empty, try to fetch from Plate model
@@ -128,8 +138,12 @@ class Ticket extends Model
             $cleanPlateNumber = 'UNKNOWN';
         }
 
-        $date = now()->format('dmy');
-        $base = $prefix . $cleanPlateNumber . $date;
+        // Session id segment
+        $sessionSegment = (string) max(0, (int) ($parkingSessionId ?? 0));
+
+        // Format: mmddyy as requested
+        $date = now()->format('mdy');
+        $base = $prefix . $sessionSegment . $cleanPlateNumber . $date;
 
         // Derive a sequence to ensure uniqueness for the same plate and day
         $sequence = (int) self::where('ticket_number', 'like', $base . '%')->count() + 1;
