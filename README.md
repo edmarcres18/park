@@ -1,3 +1,85 @@
+## Docker Setup
+
+This project is configured to run in a Docker environment. Follow these steps to get started:
+
+### Prerequisites
+
+- Docker Desktop installed on your machine.
+
+### Build and Run
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/your-username/your-repository.git
+    cd your-repository
+    ```
+
+2.  **Create a `.env` file:**
+
+    Copy the `.env.example` file to a new file named `.env`.
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    **Important:** Update the `DB_HOST` in your `.env` file to `db` to connect to the MySQL container.
+
+3.  **Build and start the containers:**
+
+    ```bash
+    docker-compose up -d --build
+    ```
+
+4.  **Install Composer dependencies:**
+
+    ```bash
+    docker-compose exec app composer install
+    ```
+
+5.  **Generate an application key:**
+
+    ```bash
+    docker-compose exec app php artisan key:generate
+    ```
+
+6.  **Run database migrations:**
+
+    ```bash
+    docker-compose exec app php artisan migrate
+    ```
+
+7.  **Create a symbolic link for storage:**
+
+    ```bash
+    docker-compose exec app php artisan storage:link
+    ```
+
+8.  **Access the application:**
+
+    -   **Application:** [http://localhost:8000](http://localhost:8000)
+    -   **phpMyAdmin:** [http://localhost:8080](http://localhost:8080)
+
+### Useful Docker Commands
+
+-   **Stop the containers:**
+
+    ```bash
+    docker-compose down
+    ```
+
+-   **View container logs:**
+
+    ```bash
+    docker-compose logs -f
+    ```
+
+-   **Access the `app` container shell:**
+
+    ```bash
+    docker-compose exec app bash
+    ```
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
