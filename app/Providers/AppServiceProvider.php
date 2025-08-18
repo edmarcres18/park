@@ -10,6 +10,7 @@ use App\Observers\ParkingSessionObserver;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+
         ParkingSession::observe(ParkingSessionObserver::class);
 
         // Inject site settings into all views
