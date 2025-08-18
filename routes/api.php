@@ -11,10 +11,14 @@ use App\Http\Controllers\Api\SessionApiController;
 use App\Http\Controllers\Api\TicketApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\ProfileApiController;
+use App\Http\Controllers\Api\SystemApiController;
 use App\Http\Controllers\TicketPrintController;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+
+// Public endpoint to fetch minimal system settings for clients (e.g., mobile app)
+Route::get('/system/settings', [SystemApiController::class, 'settings'])->middleware('throttle:30,1');
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
