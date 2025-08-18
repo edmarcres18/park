@@ -49,7 +49,7 @@
           </div>
         @endif
 
-        <form class="space-y-4" x-data="{type:'staff', show:false, isSubmitting:false}" x-on:submit="isSubmitting = true" method="POST" action="{{ route('register') }}" autocomplete="on">
+        <form class="space-y-4" x-data="{isSubmitting:false}" x-on:submit="isSubmitting = true" method="POST" action="{{ route('register') }}" autocomplete="on">
           @csrf
           <div>
             <label class="form-label small mb-1">Full name</label>
@@ -61,11 +61,35 @@
             <input type="email" name="email" class="form-control rounded-lg" placeholder="you@example.com" value="{{ old('email') }}" required autocomplete="email">
           </div>
 
-          <div>
+          <div x-data="passwordValidator()">
             <label class="form-label small mb-1">Password</label>
             <div class="input-group">
-              <input :type="show ? 'text' : 'password'" name="password" class="form-control rounded-lg" placeholder="Choose a strong password" required autocomplete="new-password">
+              <input :type="show ? 'text' : 'password'" name="password" class="form-control rounded-lg" placeholder="Choose a strong password" required autocomplete="new-password" x-model="password" @input="validatePassword()">
               <button type="button" class="btn btn-outline-secondary border-start-0" x-on:click="show = !show">Toggle</button>
+            </div>
+            <div class="mt-2 text-sm text-gray-500">
+                <ul class="list-unstyled">
+                    <li :class="{'text-success': validations.minLength, 'text-danger': !validations.minLength}">
+                        <i class="fa-solid me-1" :class="{'fa-check-circle': validations.minLength, 'fa-times-circle': !validations.minLength}"></i>
+                        At least 8 characters
+                    </li>
+                    <li :class="{'text-success': validations.uppercase, 'text-danger': !validations.uppercase}">
+                        <i class="fa-solid me-1" :class="{'fa-check-circle': validations.uppercase, 'fa-times-circle': !validations.uppercase}"></i>
+                        One uppercase letter
+                    </li>
+                    <li :class="{'text-success': validations.lowercase, 'text-danger': !validations.lowercase}">
+                        <i class="fa-solid me-1" :class="{'fa-check-circle': validations.lowercase, 'fa-times-circle': !validations.lowercase}"></i>
+                        One lowercase letter
+                    </li>
+                    <li :class="{'text-success': validations.number, 'text-danger': !validations.number}">
+                        <i class="fa-solid me-1" :class="{'fa-check-circle': validations.number, 'fa-times-circle': !validations.number}"></i>
+                        One number
+                    </li>
+                    <li :class="{'text-success': validations.symbol, 'text-danger': !validations.symbol}">
+                        <i class="fa-solid me-1" :class="{'fa-check-circle': validations.symbol, 'fa-times-circle': !validations.symbol}"></i>
+                        One special character
+                    </li>
+                </ul>
             </div>
           </div>
 
@@ -103,6 +127,26 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    function passwordValidator() {
+        return {
+            password: '',
+            show: false,
+            validations: {
+                minLength: false,
+                uppercase: false,
+                lowercase: false,
+                number: false,
+                symbol: false
+            },
+            validatePassword() {
+                this.validations.minLength = this.password.length >= 8;
+                this.validations.uppercase = /[A-Z]/.test(this.password);
+                this.validations.lowercase = /[a-z]/.test(this.password);
+                this.validations.number = /\d/.test(this.password);
+                this.validations.symbol = /[!@#$%^&*(),.?":{}|<>]/.test(this.password);
+            }
+        }
+    }
   </script>
 </body>
 </html>

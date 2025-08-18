@@ -48,13 +48,15 @@ class RegisterController extends Controller
                 'required',
                 'string',
                 'confirmed',
-                'min:8',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
             ],
             'terms' => ['required', 'accepted'],
         ], [
             'name.regex' => 'The name may only contain letters and spaces.',
-            'password.regex' => 'The password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
             'terms.accepted' => 'You must accept the terms and conditions.',
         ]);
 
