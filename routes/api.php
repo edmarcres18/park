@@ -41,9 +41,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/sessions/start', [SessionApiController::class, 'start']);
         Route::post('/sessions/end/{session}', [SessionApiController::class, 'end'])->whereNumber('session');
 
-        // Ticket API Routes (attendant-only) - Auto-generated tickets from ParkingSessionObserver
-        Route::get('tickets', [TicketApiController::class, 'index'])->middleware('throttle:60,1');
-        Route::get('tickets/statistics', [TicketApiController::class, 'statistics'])->middleware('throttle:30,1');
+        // Ticket API Routes (attendant-only)
+        Route::get('tickets', [TicketApiController::class, 'index']);
         Route::get('tickets/{id}', [TicketApiController::class, 'show'])->whereNumber('id');
         Route::post('tickets/generate', [TicketApiController::class, 'generate'])->middleware('throttle:20,1');
         Route::post('tickets/{ticket}/printed', [TicketApiController::class, 'markPrinted'])->whereNumber('ticket');
