@@ -40,6 +40,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/sessions/rates', [SessionApiController::class, 'rates']);
         Route::post('/sessions/start', [SessionApiController::class, 'start']);
         Route::post('/sessions/end/{session}', [SessionApiController::class, 'end'])->whereNumber('session');
+        Route::get('/sessions/{session}/print-data', [SessionApiController::class, 'getSessionPrintData'])->whereNumber('session');
 
         // Ticket API Routes (attendant-only)
         Route::get('tickets', [TicketApiController::class, 'index']);

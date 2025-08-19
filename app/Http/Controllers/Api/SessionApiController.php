@@ -243,4 +243,56 @@ class SessionApiController extends Controller
             'data' => $rates,
         ]);
     }
+
+    /**
+     * Get session print data for starting sessions.
+     */
+    public function getSessionPrintData(ParkingSession $session): JsonResponse
+    {
+        try {
+            // Get app settings
+            $appName = config('app.name', 'Parking System');
+            $locationName = config('parking.location_name', 'Parking Location');
+
+            // Get the parking rate
+            $rate = $session->parkingRate;
+
+            // Format the start time
+            $startTime = $session->start_time->format('M d, Y g:i A');
+
+            // Generate session number (similar to ticket number)
+            $sessionNumber = 'SES' . str_pad($session->id, 6, '0', STR_PAD_LEFT);
+
+            $printData = [
+                'session' => [
+                    'id' => $session->id,
+                    'number' => $sessionNumber,
+                    'plate_number' => $session->plate_number,
+                    'customer_name' => $session->customer_name,
+                    'customer_contact' => $session->customer_contact,
+                    'start_time' => $startTime,
+                    'rate_name' => $rate ? $rate->name : 'Standard Rate',
+                    'rate_amount' => $rate ? (float) $rate->rate_amount : 0.0,
+                    'formatted_rate_amount' => $rate ? $rate->formatted_rate_amount : '₱0.00',
+                    'rate_type' => $rate ? $rate->rate_type : 'hourly',
+                    'grace_period' => $rate ? (int) ($rate->grace_period ?? 0) : 0,
+                    'formatted_grace_period' => $rate ? $rate->formatted_grace_period : '0 minutes',
+                ],
+                'app_name' => $appName,
+                'location_name' => $locationName,
+                'print_time' => now()->format('M d, Y g:i A'),
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $printData,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get session print data.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
