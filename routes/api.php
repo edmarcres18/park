@@ -42,11 +42,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/sessions/end/{session}', [SessionApiController::class, 'end'])->whereNumber('session');
 
         // Ticket API Routes (attendant-only)
+        // Get all auto-generated tickets for the authenticated attendant
         Route::get('tickets', [TicketApiController::class, 'index']);
-        Route::get('tickets/{id}', [TicketApiController::class, 'show'])->whereNumber('id');
-        Route::post('tickets/generate', [TicketApiController::class, 'generate'])->middleware('throttle:20,1');
-        Route::post('tickets/{ticket}/printed', [TicketApiController::class, 'markPrinted'])->whereNumber('ticket');
-        // Normalized print data for 58mm
+        // Normalized print data for 58mm (using existing TicketPrintController)
         Route::get('tickets/{ticket}/print-data', [TicketPrintController::class, 'api'])->whereNumber('ticket');
 
         // Location API routes (restricted to attendants)
