@@ -56,7 +56,14 @@ class TicketApiController extends Controller
             }
 
             $user = Auth::user();
-            $perPage = $request->get('per_page', 15);
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
+
+            $perPage = min(max((int) $request->get('per_page', 15), 1), 100);
             $sortBy = $request->get('sort_by', 'created_at');
             $sortOrder = $request->get('sort_order', 'desc');
             $includeSessionDetails = $request->boolean('include_session_details', true);
@@ -81,10 +88,15 @@ class TicketApiController extends Controller
 
             $tickets = $query->with($relationships)->paginate($perPage);
 
-            // Transform the data
+            // Transform the data with error handling
             $transformedTickets = $tickets->getCollection()->map(function (Ticket $ticket) use ($includeLocation) {
-                return $this->transformTicket($ticket, $includeLocation);
-            });
+                try {
+                    return $this->transformTicket($ticket, $includeLocation);
+                } catch (\Exception $e) {
+                    \Log::error('Error transforming ticket #' . $ticket->id . ': ' . $e->getMessage());
+                    return null;
+                }
+            })->filter()->values();
 
             // Get summary statistics
             $summary = $this->getSummaryStatistics($user->id, $request);
@@ -169,6 +181,11 @@ class TicketApiController extends Controller
      */
     private function transformTicket(Ticket $ticket, bool $includeLocation = false): array
     {
+        // Ensure parking session is loaded
+        if (!$ticket->relationLoaded('parkingSession') || !$ticket->parkingSession) {
+            throw new \Exception('Parking session not loaded for ticket #' . $ticket->id);
+        }
+
         $transformed = [
             'id' => $ticket->id,
             'ticket_number' => $ticket->ticket_number,
@@ -193,8 +210,8 @@ class TicketApiController extends Controller
                 'end_time' => $ticket->parkingSession->end_time ? $ticket->parkingSession->end_time->format('Y-m-d H:i:s') : null,
                 'duration_minutes' => $ticket->parkingSession->duration_minutes,
                 'formatted_duration' => $ticket->parkingSession->formatted_duration,
-                'amount_paid' => (float) $ticket->parkingSession->amount_paid,
-                'formatted_amount_paid' => $ticket->parkingSession->formatted_amount,
+                'amount_paid' => (float) ($ticket->parkingSession->amount_paid ?? 0),
+                'formatted_amount_paid' => $ticket->parkingSession->formatted_amount ?? '₱0.00',
                 'is_active' => $ticket->parkingSession->isActive(),
             ],
             'parking_rate' => $ticket->parkingSession->parkingRate ? [
