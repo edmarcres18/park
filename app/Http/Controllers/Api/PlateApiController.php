@@ -21,7 +21,18 @@ class PlateApiController extends Controller
      */
     public function index()
     {
-        return PlateResource::collection(Plate::latest()->paginate());
+        $query = Plate::query();
+
+        if (request()->filled('q')) {
+            $q = request('q');
+            $query->where(function ($inner) use ($q) {
+                $inner->where('number', 'like', "%{$q}%")
+                      ->orWhere('owner_name', 'like', "%{$q}%")
+                      ->orWhere('vehicle_type', 'like', "%{$q}%");
+            });
+        }
+
+        return PlateResource::collection($query->latest()->paginate());
     }
 
     /**
