@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('tickets/{id}', [TicketApiController::class, 'show'])->whereNumber('id');
         Route::post('tickets/generate', [TicketApiController::class, 'generate'])->middleware('throttle:20,1');
         Route::post('tickets/{ticket}/printed', [TicketApiController::class, 'markPrinted'])->whereNumber('ticket');
+        Route::get('tickets/statistics', [TicketApiController::class, 'statistics']);
         // Normalized print data for 58mm
         Route::get('tickets/{ticket}/print-data', [TicketPrintController::class, 'api'])->whereNumber('ticket');
 
