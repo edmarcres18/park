@@ -261,7 +261,7 @@ class SessionApiController extends Controller
             $startTime = $session->start_time->format('M d, Y g:i A');
 
             // Generate session number (similar to ticket number)
-            $sessionNumber = 'SES' . str_pad($session->id, 6, '0', STR_PAD_LEFT);
+            $sessionNumber = config('parking.session_number_prefix', 'SES') . str_pad($session->id, 6, '0', STR_PAD_LEFT);
 
             $printData = [
                 'session' => [
@@ -277,10 +277,16 @@ class SessionApiController extends Controller
                     'rate_type' => $rate ? $rate->rate_type : 'hourly',
                     'grace_period' => $rate ? (int) ($rate->grace_period ?? 0) : 0,
                     'formatted_grace_period' => $rate ? $rate->formatted_grace_period : '0 minutes',
+                    'qr_data' => [
+                        'session_id' => $session->id,
+                        'plate_number' => $session->plate_number,
+                        'start_time' => $session->start_time->toISOString(),
+                    ],
                 ],
                 'app_name' => $appName,
                 'location_name' => $locationName,
                 'print_time' => now()->format('M d, Y g:i A'),
+                'receipt_type' => 'session_start',
             ];
 
             return response()->json([
