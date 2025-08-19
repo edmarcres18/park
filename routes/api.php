@@ -42,7 +42,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/sessions/end/{session}', [SessionApiController::class, 'end'])->whereNumber('session');
 
         // Ticket API Routes (attendant-only)
-        Route::get('tickets', [TicketApiController::class, 'index']);
+        Route::get('tickets', [TicketApiController::class, 'index'])->middleware('throttle:60,1');
         Route::get('tickets/{id}', [TicketApiController::class, 'show'])->whereNumber('id');
         Route::post('tickets/generate', [TicketApiController::class, 'generate'])->middleware('throttle:20,1');
         Route::post('tickets/{ticket}/printed', [TicketApiController::class, 'markPrinted'])->whereNumber('ticket');
