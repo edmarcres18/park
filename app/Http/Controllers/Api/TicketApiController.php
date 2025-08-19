@@ -28,7 +28,8 @@ class TicketApiController extends Controller
         $query = Ticket::query()
             ->with(['parkingSession.creator', 'parkingSession.parkingRate'])
             ->whereHas('parkingSession', function ($q) {
-                $q->where('created_by', auth()->id());
+                $q->where('created_by', auth()->id())
+                  ->whereNotNull('end_time');
             })
             ->orderBy('created_at', 'desc');
 
@@ -66,7 +67,6 @@ class TicketApiController extends Controller
                 'plate_number' => $ticket->plate_number,
                 'time_in' => $ticket->time_in ? $ticket->time_in->format('Y-m-d H:i:s') : null,
                 'time_out' => $ticket->time_out ? $ticket->time_out->format('Y-m-d H:i:s') : null,
-                'has_ended' => (bool) $ticket->time_out,
                 'rate' => (float) $ticket->rate,
                 'formatted_rate' => '₱' . number_format($ticket->rate, 2),
                 'parking_slot' => $ticket->parking_slot,
@@ -129,7 +129,6 @@ class TicketApiController extends Controller
             'plate_number' => $ticket->plate_number,
             'time_in' => $ticket->time_in ? $ticket->time_in->format('Y-m-d H:i:s') : null,
             'time_out' => $ticket->time_out ? $ticket->time_out->format('Y-m-d H:i:s') : null,
-            'has_ended' => (bool) $ticket->time_out,
             'rate' => (float) $ticket->rate,
             'formatted_rate' => '₱' . number_format($ticket->rate, 2),
             'parking_slot' => $ticket->parking_slot,
