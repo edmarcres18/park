@@ -7,6 +7,7 @@ use App\Models\ParkingSession;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardApiController extends Controller
 {
@@ -86,7 +87,7 @@ class DashboardApiController extends Controller
                 ];
             });
 
-        return response()->json([
+        $payload = [
             'status' => 'success',
             'generated_at' => now()->format('Y-m-d H:i:s'),
             'timezone' => config('app.timezone'),
@@ -105,7 +106,19 @@ class DashboardApiController extends Controller
                 ],
                 'recent_completed_sessions' => $recentCompletedSessions->values(),
             ],
-        ]);
+        ];
+
+        activity('dashboard_api')
+            ->causedBy($user)
+            ->withProperties([
+                'action' => 'index',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'active_sessions' => $activeSessions->count(),
+            ])
+            ->log('Fetched dashboard data via API');
+
+        return response()->json($payload);
     }
 }
 

@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Spatie\Activitylog\Models\Activity;
 
 class ProfileApiController extends Controller
 {
@@ -22,6 +23,15 @@ class ProfileApiController extends Controller
     {
         $user = Auth::user();
         $user->load('roles');
+
+        activity('profile_api')
+            ->causedBy($user)
+            ->withProperties([
+                'action' => 'show',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log('Viewed profile via API');
 
         return response()->json([
             'status' => 'success',
@@ -64,6 +74,17 @@ class ProfileApiController extends Controller
         }
 
         $user->save();
+
+        activity('profile_api')
+            ->performedOn($user)
+            ->causedBy($user)
+            ->withProperties([
+                'action' => 'update',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'changes' => $user->getChanges(),
+            ])
+            ->log('Updated profile via API');
 
         return response()->json([
             'status' => 'success',

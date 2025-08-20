@@ -7,6 +7,7 @@ use App\Models\Plate;
 use App\Http\Requests\StorePlateRequest;
 use App\Http\Requests\UpdatePlateRequest;
 use App\Http\Resources\PlateResource;
+use Spatie\Activitylog\Models\Activity;
 
 class PlateApiController extends Controller
 {
@@ -32,7 +33,19 @@ class PlateApiController extends Controller
             });
         }
 
-        return PlateResource::collection($query->latest()->paginate());
+        $result = PlateResource::collection($query->latest()->paginate());
+
+        activity('plate_api')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'index',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'query' => request()->only(['q']),
+            ])
+            ->log('Listed plates via API');
+
+        return $result;
     }
 
     /**
@@ -42,6 +55,17 @@ class PlateApiController extends Controller
     {
         $plate = Plate::create($request->validated());
 
+        activity('plate_api')
+            ->performedOn($plate)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'store',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'payload' => $request->safe()->only(['number','owner_name','vehicle_type']),
+            ])
+            ->log("Created plate {$plate->number} via API");
+
         return new PlateResource($plate);
     }
 
@@ -50,6 +74,16 @@ class PlateApiController extends Controller
      */
     public function show(Plate $plate)
     {
+        activity('plate_api')
+            ->performedOn($plate)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'show',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log("Viewed plate {$plate->number} via API");
+
         return new PlateResource($plate);
     }
 
@@ -60,6 +94,17 @@ class PlateApiController extends Controller
     {
         $plate->update($request->validated());
 
+        activity('plate_api')
+            ->performedOn($plate)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'update',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'changes' => $plate->getChanges(),
+            ])
+            ->log("Updated plate {$plate->number} via API");
+
         return new PlateResource($plate);
     }
 
@@ -69,6 +114,17 @@ class PlateApiController extends Controller
     public function destroy(Plate $plate)
     {
         $plate->delete();
+
+        activity('plate_api')
+            ->performedOn($plate)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'destroy',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'plate_number' => $plate->number,
+            ])
+            ->log("Deleted plate {$plate->number} via API");
 
         return response()->noContent();
     }

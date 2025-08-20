@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
+use Spatie\Activitylog\Models\Activity;
 
 class SystemApiController extends Controller
 {
@@ -24,14 +25,24 @@ class SystemApiController extends Controller
             $locationName = null;
         }
 
-        return response()->json([
+        $payload = [
             'status' => 'success',
             'data' => [
                 'app_name' => $appName,
                 'brand_logo' => $brandLogo,
                 'location_name' => $locationName,
             ],
-        ]);
+        ];
+
+        activity('system_api')
+            ->withProperties([
+                'action' => 'settings',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log('Fetched system settings via API');
+
+        return response()->json($payload);
     }
 }
 

@@ -9,6 +9,7 @@ use App\Models\ParkingSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ParkingRate;
+use Spatie\Activitylog\Models\Activity;
 
 class SessionApiController extends Controller
 {
@@ -48,11 +49,23 @@ class SessionApiController extends Controller
                 ];
             });
 
-        return response()->json([
+        $response = [
             'status' => 'success',
             'data' => $sessions,
             'total' => $sessions->count(),
-        ]);
+        ];
+
+        activity('session_api')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'active_list',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'total' => $sessions->count(),
+            ])
+            ->log('Listed active sessions via API');
+
+        return response()->json($response);
     }
 
     /**
@@ -91,7 +104,7 @@ class SessionApiController extends Controller
             ];
         });
 
-        return response()->json([
+        $response = [
             'status' => 'success',
             'data' => $data,
             'pagination' => [
@@ -102,7 +115,20 @@ class SessionApiController extends Controller
                 'from' => $sessions->firstItem(),
                 'to' => $sessions->lastItem(),
             ],
-        ]);
+        ];
+
+        activity('session_api')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'history_list',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'page' => $sessions->currentPage(),
+                'per_page' => $sessions->perPage(),
+            ])
+            ->log('Listed session history via API');
+
+        return response()->json($response);
     }
 
     /**
@@ -124,6 +150,17 @@ class SessionApiController extends Controller
                 targetRole: 'admin',
             ));
 
+            activity('session_api')
+                ->performedOn($session)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'start',
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'payload' => $request->safe()->all(),
+                ])
+                ->log("Started session for plate {$session->plate_number} via API");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Parking session started successfully!',
@@ -142,6 +179,16 @@ class SessionApiController extends Controller
                 ],
             ], 201);
         } catch (\Exception $e) {
+            activity('session_api')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'start_failed',
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'error' => $e->getMessage(),
+                ])
+                ->log('Failed to start parking session via API');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to start parking session.',
@@ -184,6 +231,16 @@ class SessionApiController extends Controller
                 targetRole: 'admin',
             ));
 
+            activity('session_api')
+                ->performedOn($session)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'end',
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ])
+                ->log("Ended session for plate {$session->plate_number} via API");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Parking session ended successfully!',
@@ -208,6 +265,16 @@ class SessionApiController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
+            activity('session_api')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'end_failed',
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'error' => $e->getMessage(),
+                ])
+                ->log('Failed to end parking session via API');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to end parking session.',
@@ -238,10 +305,22 @@ class SessionApiController extends Controller
                 ];
             });
 
-        return response()->json([
+        $response = [
             'status' => 'success',
             'data' => $rates,
-        ]);
+        ];
+
+        activity('session_api')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'rates',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'count' => $rates->count(),
+            ])
+            ->log('Fetched parking rates via API');
+
+        return response()->json($response);
     }
 
     /**
@@ -289,11 +368,31 @@ class SessionApiController extends Controller
                 'receipt_type' => 'session_start',
             ];
 
+            activity('session_api')
+                ->performedOn($session)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'get_print_data',
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ])
+                ->log("Fetched print data for session {$session->id} via API");
+
             return response()->json([
                 'status' => 'success',
                 'data' => $printData,
             ]);
         } catch (\Exception $e) {
+            activity('session_api')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'get_print_data_failed',
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'error' => $e->getMessage(),
+                ])
+                ->log('Failed to get session print data via API');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to get session print data.',

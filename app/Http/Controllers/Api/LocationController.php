@@ -7,6 +7,7 @@ use App\Models\UserLocation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Models\Activity;
 
 class LocationController extends Controller
 {
@@ -36,6 +37,18 @@ class LocationController extends Controller
 
         $location = UserLocation::updateUserLocation(Auth::id(), $validated);
 
+        activity('location_api')
+            ->performedOn($location)
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'action' => 'update_location',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'coordinates' => [$validated['latitude'], $validated['longitude']],
+                'accuracy' => $validated['accuracy'] ?? null,
+            ])
+            ->log('Updated location via API');
+
         return response()->json([
             'status' => 'success',
             'message' => 'Location updated',
@@ -54,6 +67,16 @@ class LocationController extends Controller
     public function getCurrentLocation(): JsonResponse
     {
         $location = UserLocation::getCurrentLocation(Auth::id());
+
+        activity('location_api')
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'action' => 'get_current_location',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'has_location' => (bool) $location,
+            ])
+            ->log('Fetched current location via API');
 
         if (!$location) {
             return response()->json([
@@ -99,6 +122,17 @@ class LocationController extends Controller
                     'location_timestamp' => $loc->location_timestamp?->toDateTimeString(),
                 ];
             });
+
+        activity('location_api')
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'action' => 'get_location_history',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'hours' => $hours,
+                'total' => $history->count(),
+            ])
+            ->log('Fetched location history via API');
 
         return response()->json([
             'status' => 'success',

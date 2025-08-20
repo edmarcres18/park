@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\TicketTemplateConfigService;
+use Spatie\Activitylog\Models\Activity;
 
 class TicketApiController extends Controller
 {
@@ -91,7 +92,7 @@ class TicketApiController extends Controller
             ];
         });
 
-        return response()->json([
+        $response = [
             'status' => 'success',
             'data' => $data,
             'pagination' => [
@@ -102,7 +103,19 @@ class TicketApiController extends Controller
                 'from' => $tickets->firstItem(),
                 'to' => $tickets->lastItem(),
             ],
-        ]);
+        ];
+
+        activity('ticket_api')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'index',
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'filters' => $request->only(['plate_number','print_status','date_from','date_to']),
+            ])
+            ->log('Listed tickets via API');
+
+        return response()->json($response);
     }
 
     /**
@@ -164,6 +177,17 @@ class TicketApiController extends Controller
             'created_at' => $ticket->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $ticket->updated_at->format('Y-m-d H:i:s'),
         ];
+
+        activity('ticket_api')
+            ->performedOn($ticket)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'show',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'ticket_id' => $ticket->id,
+            ])
+            ->log("Viewed ticket {$ticket->ticket_number} via API");
 
         return response()->json([
             'status' => 'success',
@@ -259,6 +283,17 @@ class TicketApiController extends Controller
                 targetRole: 'admin',
             ));
 
+            activity('ticket_api')
+                ->performedOn($ticket)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'generate',
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'parking_session_id' => $parkingSession->id,
+                ])
+                ->log("Generated ticket {$ticket->ticket_number} via API");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Ticket generated successfully.',
@@ -278,6 +313,16 @@ class TicketApiController extends Controller
                 ],
             ], 201);
         } catch (\Exception $e) {
+            activity('ticket_api')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'generate_failed',
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'error' => $e->getMessage(),
+                ])
+                ->log('Failed to generate ticket via API');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to generate ticket.',
@@ -302,6 +347,16 @@ class TicketApiController extends Controller
         try {
             $ticket->markAsPrinted();
 
+            activity('ticket_api')
+                ->performedOn($ticket)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'mark_printed',
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ])
+                ->log("Marked ticket {$ticket->ticket_number} as printed via API");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Ticket marked as printed successfully.',
@@ -313,6 +368,16 @@ class TicketApiController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
+            activity('ticket_api')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'mark_printed_failed',
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'error' => $e->getMessage(),
+                ])
+                ->log('Failed to mark ticket as printed via API');
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to mark ticket as printed.',
@@ -348,9 +413,20 @@ class TicketApiController extends Controller
                 ->count(),
         ];
 
-        return response()->json([
+        $response = [
             'status' => 'success',
             'data' => $stats,
-        ]);
+        ];
+
+        activity('ticket_api')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'statistics',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log('Fetched ticket statistics via API');
+
+        return response()->json($response);
     }
 }
