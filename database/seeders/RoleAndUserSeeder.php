@@ -20,21 +20,21 @@ class RoleAndUserSeeder extends Seeder
 
         // Create admin user
         $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => 'System Admin',
+            'email' => 'mhrpci.it@gmail.com',
             'email_verified_at' => now(),
             'status' => 'active',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('mhrpci-admin@2025'),
         ]);
         $admin->assignRole($adminRole);
 
         // Create attendant user
         $attendant = User::create([
-            'name' => 'Attendant User',
-            'email' => 'attendant@example.com',
+            'name' => 'Attendant',
+            'email' => 'attendant@mhrpci.com',
             'email_verified_at' => now(),
             'status' => 'active',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('mhrpci-attendant@2025'),
         ]);
         $attendant->assignRole($attendantRole);
     }
