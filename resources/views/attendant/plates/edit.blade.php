@@ -35,14 +35,14 @@
 
             <div class="mb-4">
                 <label for="owner_name" class="block text-sm font-medium text-slate-700 mb-2">
-                    <i class="ri-user-line mr-1"></i>Owner Name
+                    <i class="ri-user-line mr-1"></i>Owner/Description
                 </label>
                 <input type="text"
                        name="owner_name"
                        id="owner_name"
                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 @error('owner_name') border-red-500 ring-2 ring-red-200 @enderror"
                        value="{{ old('owner_name', $plate->owner_name) }}"
-                       placeholder="Full name of vehicle owner"
+                       placeholder="Owner name or vehicle description"
                        required>
                 @error('owner_name')
                     <p class="text-red-500 text-sm mt-2"><i class="ri-error-warning-line mr-1"></i>{{ $message }}</p>
@@ -61,9 +61,16 @@
                 <option value="">Select vehicle type</option>
                 <option value="Car" {{ old('vehicle_type', $plate->vehicle_type) == 'Car' ? 'selected' : '' }}>Car</option>
                 <option value="Motorcycle" {{ old('vehicle_type', $plate->vehicle_type) == 'Motorcycle' ? 'selected' : '' }}>Motorcycle</option>
-                <option value="Truck" {{ old('vehicle_type', $plate->vehicle_type) == 'Truck' ? 'selected' : '' }}>Truck</option>
-                <option value="Van" {{ old('vehicle_type', $plate->vehicle_type) == 'Van' ? 'selected' : '' }}>Van</option>
                 <option value="SUV" {{ old('vehicle_type', $plate->vehicle_type) == 'SUV' ? 'selected' : '' }}>SUV</option>
+                <option value="Van" {{ old('vehicle_type', $plate->vehicle_type) == 'Van' ? 'selected' : '' }}>Van</option>
+                <option value="Truck" {{ old('vehicle_type', $plate->vehicle_type) == 'Truck' ? 'selected' : '' }}>Truck</option>
+                <option value="Bus" {{ old('vehicle_type', $plate->vehicle_type) == 'Bus' ? 'selected' : '' }}>Bus</option>
+                <option value="Electric Vehicle" {{ old('vehicle_type', $plate->vehicle_type) == 'Electric Vehicle' ? 'selected' : '' }}>Electric Vehicle</option>
+                <option value="Hybrid Vehicle" {{ old('vehicle_type', $plate->vehicle_type) == 'Hybrid Vehicle' ? 'selected' : '' }}>Hybrid Vehicle</option>
+                <option value="Vintage/Classic" {{ old('vehicle_type', $plate->vehicle_type) == 'Vintage/Classic' ? 'selected' : '' }}>Vintage/Classic</option>
+                <option value="Government" {{ old('vehicle_type', $plate->vehicle_type) == 'Government' ? 'selected' : '' }}>Government</option>
+                <option value="Diplomatic" {{ old('vehicle_type', $plate->vehicle_type) == 'Diplomatic' ? 'selected' : '' }}>Diplomatic</option>
+                <option value="Temporary/Conduction" {{ old('vehicle_type', $plate->vehicle_type) == 'Temporary/Conduction' ? 'selected' : '' }}>Temporary/Conduction</option>
             </select>
             @error('vehicle_type')
                 <p class="text-red-500 text-sm mt-2"><i class="ri-error-warning-line mr-1"></i>{{ $message }}</p>

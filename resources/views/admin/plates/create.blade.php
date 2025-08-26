@@ -47,14 +47,14 @@
             <!-- Owner Name Field -->
             <div>
                 <label for="owner_name" class="block text-sm font-medium text-slate-700 mb-2">
-                    Owner Name <span class="text-red-500">*</span>
+                    Owner/Description <span class="text-red-500">*</span>
                 </label>
                 <input type="text"
                        id="owner_name"
                        name="owner_name"
                        value="{{ old('owner_name') }}"
                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('owner_name') border-red-300 focus:ring-red-500 @enderror"
-                       placeholder="Enter owner full name">
+                       placeholder="Owner name or vehicle description">
                 @error('owner_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -75,6 +75,12 @@
                     <option value="Van" {{ old('vehicle_type') == 'Van' ? 'selected' : '' }}>Van</option>
                     <option value="Truck" {{ old('vehicle_type') == 'Truck' ? 'selected' : '' }}>Truck</option>
                     <option value="Bus" {{ old('vehicle_type') == 'Bus' ? 'selected' : '' }}>Bus</option>
+                    <option value="Electric Vehicle" {{ old('vehicle_type') == 'Electric Vehicle' ? 'selected' : '' }}>Electric Vehicle</option>
+                    <option value="Hybrid Vehicle" {{ old('vehicle_type') == 'Hybrid Vehicle' ? 'selected' : '' }}>Hybrid Vehicle</option>
+                    <option value="Vintage/Classic" {{ old('vehicle_type') == 'Vintage/Classic' ? 'selected' : '' }}>Vintage/Classic</option>
+                    <option value="Government" {{ old('vehicle_type') == 'Government' ? 'selected' : '' }}>Government</option>
+                    <option value="Diplomatic" {{ old('vehicle_type') == 'Diplomatic' ? 'selected' : '' }}>Diplomatic</option>
+                    <option value="Temporary/Conduction" {{ old('vehicle_type') == 'Temporary/Conduction' ? 'selected' : '' }}>Temporary/Conduction</option>
                 </select>
                 @error('vehicle_type')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

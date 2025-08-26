@@ -29,6 +29,15 @@ class PlateApiController extends Controller
             ], 400);
         }
 
+        // Validate format first
+        if (!Plate::isValidFormat($number)) {
+            return response()->json([
+                'exists' => false,
+                'message' => 'Plate number format is not valid for Philippine LTO standards.',
+                'valid_format' => false
+            ], 422);
+        }
+
         $exists = Plate::numberExists($number);
         $existingPlate = $exists ? Plate::findByNumber($number) : null;
 
@@ -46,7 +55,8 @@ class PlateApiController extends Controller
         return response()->json([
             'exists' => $exists,
             'message' => $exists ? 'A plate with this number already exists.' : 'Plate number is available.',
-            'plate' => $existingPlate ? new PlateResource($existingPlate) : null
+            'plate' => $existingPlate ? new PlateResource($existingPlate) : null,
+            'valid_format' => true
         ]);
     }
 
@@ -87,6 +97,14 @@ class PlateApiController extends Controller
     public function store(StorePlateRequest $request)
     {
         try {
+            // Validate format first
+            if (!Plate::isValidFormat($request->number)) {
+                return response()->json([
+                    'message' => 'Plate number format is not valid for Philippine LTO standards.',
+                    'valid_format' => false
+                ], 422);
+            }
+
             // Check if plate already exists before creating
             if (Plate::numberExists($request->number)) {
                 $existingPlate = Plate::findByNumber($request->number);

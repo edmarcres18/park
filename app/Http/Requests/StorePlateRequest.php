@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Plate;
 
 class StorePlateRequest extends FormRequest
 {
@@ -22,7 +23,17 @@ class StorePlateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'number' => 'required|unique:plates|string|max:255',
+            'number' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:plates',
+                function ($attribute, $value, $fail) {
+                    if (!Plate::isValidFormat($value)) {
+                        $fail('The plate number format is not valid for Philippine LTO standards.');
+                    }
+                }
+            ],
             'owner_name' => 'nullable|string|max:255',
             'vehicle_type' => 'required|string|max:255',
         ];
@@ -40,8 +51,8 @@ class StorePlateRequest extends FormRequest
             'number.required' => 'Plate number is required.',
             'number.string' => 'Plate number must be a string.',
             'number.max' => 'Plate number cannot exceed 255 characters.',
-            'owner_name.string' => 'Owner name must be a string.',
-            'owner_name.max' => 'Owner name cannot exceed 255 characters.',
+            'owner_name.string' => 'Owner/Description must be a string.',
+            'owner_name.max' => 'Owner/Description cannot exceed 255 characters.',
             'vehicle_type.required' => 'Vehicle type is required.',
             'vehicle_type.string' => 'Vehicle type must be a string.',
             'vehicle_type.max' => 'Vehicle type cannot exceed 255 characters.',
