@@ -22,9 +22,36 @@ class StorePlateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'number' => 'required|unique:plates|string|max:255',
+            'number' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:plates',
+                'regex:/^([A-Z]{3}\s?\d{3,4}|[A-Z]{2}\s?\d{5})$/'
+            ],
             'owner_name' => 'nullable|string|max:255',
             'vehicle_type' => 'required|string|max:255',
+        ];
+    }
+
+    /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'number.unique' => 'A plate with this number already exists.',
+            'number.required' => 'Plate number is required.',
+            'number.string' => 'Plate number must be a string.',
+            'number.max' => 'Plate number cannot exceed 255 characters.',
+            'number.regex' => 'Plate number must follow the format: AAA 123, AAA 1234, or AA 12345.',
+            'owner_name.string' => 'Owner/Description must be a string.',
+            'owner_name.max' => 'Owner/Description cannot exceed 255 characters.',
+            'vehicle_type.required' => 'Vehicle type is required.',
+            'vehicle_type.string' => 'Vehicle type must be a string.',
+            'vehicle_type.max' => 'Vehicle type cannot exceed 255 characters.',
         ];
     }
 }

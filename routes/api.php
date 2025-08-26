@@ -34,6 +34,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
             // Attendants can list, create and view plates only. No edit/update/delete.
         Route::apiResource('plates', PlateApiController::class)->only(['index', 'store', 'show']);
 
+        // Check for duplicate plate numbers
+        Route::get('plates/check-duplicate/{number}', [PlateApiController::class, 'checkDuplicate']);
+
         // Parking Sessions API routes
         Route::get('/sessions/active', [SessionApiController::class, 'active']);
         Route::get('/sessions/history', [SessionApiController::class, 'history']);

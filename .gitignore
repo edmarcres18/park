@@ -23,4 +23,5 @@ yarn-error.log
 .env
 docker/
 docker-compose.yml
+docker-composeprod.yml
 Dockerfile
