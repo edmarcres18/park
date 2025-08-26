@@ -34,7 +34,7 @@ class SessionApiController extends Controller
                     'plate_number' => $session->plate_number,
                     'customer_name' => $session->customer_name,
                     'customer_contact' => $session->customer_contact,
-                    'start_time' => $session->start_time->format('Y-m-d H:i:s'),
+                    'start_time' => $session->start_time->format('F j, Y h:iA'),
                     'current_duration_minutes' => $session->getCurrentDurationMinutes(),
                     'formatted_duration' => $session->formatted_duration,
                     'estimated_current_fee' => $session->getEstimatedCurrentFee(),
@@ -45,7 +45,7 @@ class SessionApiController extends Controller
                         'id' => $session->creator->id,
                         'name' => $session->creator->name,
                     ],
-                    'created_at' => $session->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $session->created_at->format('F j, Y h:iA'),
                 ];
             });
 
@@ -87,8 +87,8 @@ class SessionApiController extends Controller
                 'plate_number' => $session->plate_number,
                 'customer_name' => $session->customer_name,
                 'customer_contact' => $session->customer_contact,
-                'start_time' => $session->start_time->format('Y-m-d H:i:s'),
-                'end_time' => $session->end_time ? $session->end_time->format('Y-m-d H:i:s') : null,
+                'start_time' => $session->start_time->format('F j, Y h:iA'),
+                'end_time' => $session->end_time ? $session->end_time->format('F j, Y h:iA') : null,
                 'duration_minutes' => $session->duration_minutes,
                 'formatted_duration' => $session->formatted_duration,
                 'amount_paid' => $session->amount_paid,
@@ -169,13 +169,13 @@ class SessionApiController extends Controller
                     'plate_number' => $session->plate_number,
                     'customer_name' => $session->customer_name,
                     'customer_contact' => $session->customer_contact,
-                    'start_time' => $session->start_time->format('Y-m-d H:i:s'),
+                    'start_time' => $session->start_time->format('F j, Y h:iA'),
                     'status' => $session->status,
                     'created_by' => [
                         'id' => $session->creator->id,
                         'name' => $session->creator->name,
                     ],
-                    'created_at' => $session->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $session->created_at->format('F j, Y h:iA'),
                 ],
             ], 201);
         } catch (\Exception $e) {
@@ -249,8 +249,8 @@ class SessionApiController extends Controller
                     'plate_number' => $session->plate_number,
                     'customer_name' => $session->customer_name,
                     'customer_contact' => $session->customer_contact,
-                    'start_time' => $session->start_time->format('Y-m-d H:i:s'),
-                    'end_time' => $session->end_time->format('Y-m-d H:i:s'),
+                    'start_time' => $session->start_time->format('F j, Y h:iA'),
+                    'end_time' => $session->end_time->format('F j, Y h:iA'),
                     'duration_minutes' => $session->duration_minutes,
                     'formatted_duration' => $session->formatted_duration,
                     'amount_paid' => $session->amount_paid,
