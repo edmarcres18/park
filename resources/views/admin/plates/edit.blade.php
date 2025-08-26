@@ -196,12 +196,79 @@ document.querySelector('form').addEventListener('submit', function(e) {
     }
 });
 
+// Vehicle type to format mapping
+const vehicleTypeFormats = {
+    'Car': { pattern: /^([A-Z]{3})(\d{4})$/, format: '$1-$2' },
+    'SUV': { pattern: /^([A-Z]{3})(\d{4})$/, format: '$1-$2' },
+    'Van': { pattern: /^([A-Z]{3})(\d{4})$/, format: '$1-$2' },
+    'Truck': { pattern: /^([A-Z]{3})(\d{4})$/, format: '$1-$2' },
+    'Bus': { pattern: /^([A-Z]{3})(\d{4})$/, format: '$1-$2' },
+    'Motorcycle': {
+        patterns: [
+            { pattern: /^([A-Z]{2})(\d{3})([A-Z])$/, format: '$1-$2-$3' },
+            { pattern: /^([A-Z])(\d{3})([A-Z]{2})$/, format: '$1-$2-$3' },
+            { pattern: /^([A-Z])(\d{1})([A-Z])(\d{3})$/, format: '$1-$2-$3-$4' },
+            { pattern: /^([A-Z]{2})(\d{4})$/, format: '$1-$2' },
+            { pattern: /^([A-Z])(\d{2})([A-Z])(\d{3})$/, format: '$1-$2-$3-$4' }
+        ]
+    },
+    'Electric Vehicle': { pattern: /^(E)([A-Z]{3})(\d{3})$/, format: '$1-$2-$3' },
+    'Hybrid Vehicle': { pattern: /^(H)([A-Z]{3})(\d{3})$/, format: '$1-$2-$3' },
+    'Vintage/Classic': { pattern: /^(V)([A-Z]{3})(\d{3})$/, format: '$1-$2-$3' },
+    'Government': { pattern: /^(G)([A-Z]{3})(\d{3})$/, format: '$1-$2-$3' },
+    'Diplomatic': { pattern: /^(D)([A-Z]{3})(\d{3})$/, format: '$1-$2-$3' },
+    'Temporary/Conduction': { pattern: /^(T)([A-Z]{3})(\d{3})$/, format: '$1-$2-$3' }
+};
+
+// Enhanced plate number formatting based on selected vehicle type
+function formatPlateByVehicleType(value, vehicleType) {
+    if (!vehicleType || !vehicleTypeFormats[vehicleType]) {
+        return value; // Return as is if no vehicle type selected
+    }
+
+    const format = vehicleTypeFormats[vehicleType];
+
+    if (vehicleType === 'Motorcycle') {
+        // Try each motorcycle pattern
+        for (const pattern of format.patterns) {
+            if (pattern.pattern.test(value)) {
+                return value.replace(pattern.pattern, pattern.format);
+            }
+        }
+    } else {
+        // Single pattern for other vehicle types
+        if (format.pattern.test(value)) {
+            return value.replace(format.pattern, format.format);
+        }
+    }
+
+    return value; // Return as is if no pattern matches
+}
+
 // Plate number formatting
 document.getElementById('number').addEventListener('input', function() {
     let value = this.value.toUpperCase();
     // Remove any characters that aren't letters, numbers, or hyphens
     value = value.replace(/[^A-Z0-9-]/g, '');
+
+    const selectedVehicleType = document.getElementById('vehicle_type').value;
+
+    // Apply formatting based on selected vehicle type
+    if (selectedVehicleType && vehicleTypeFormats[selectedVehicleType]) {
+        value = formatPlateByVehicleType(value, selectedVehicleType);
+    }
+
     this.value = value;
+});
+
+// Re-format plate when vehicle type changes
+document.getElementById('vehicle_type').addEventListener('change', function() {
+    const plateInput = document.getElementById('number');
+    const value = plateInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (value) {
+        const formattedValue = formatPlateByVehicleType(value, this.value);
+        plateInput.value = formattedValue;
+    }
 });
 
 // Owner name validation
