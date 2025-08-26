@@ -68,55 +68,6 @@ class Plate extends Model
     }
 
     /**
-     * Validate plate number format.
-     *
-     * @param string $number
-     * @return bool
-     */
-    public static function isValidFormat(string $number): bool
-    {
-        return preg_match('/^([A-Z]{3}\s?\d{3,4}|[A-Z]{2}\s?\d{5})$/', $number) === 1;
-    }
-
-    /**
-     * Format plate number consistently.
-     *
-     * @param string $number
-     * @return string
-     */
-    public static function formatNumber(string $number): string
-    {
-        // Remove all spaces and convert to uppercase
-        $cleaned = strtoupper(trim($number));
-
-        // Remove any non-alphanumeric characters
-        $cleaned = preg_replace('/[^A-Z0-9]/', '', $cleaned);
-
-        // Apply formatting based on pattern
-        if (preg_match('/^([A-Z]{3})(\d{3,4})$/', $cleaned, $matches)) {
-            // Old format (AAA 123) or New format (AAA 1234)
-            return $matches[1] . ' ' . $matches[2];
-        } elseif (preg_match('/^([A-Z]{2})(\d{5})$/', $cleaned, $matches)) {
-            // Motorcycle format (AA 12345)
-            return $matches[1] . ' ' . $matches[2];
-        }
-
-        // If no pattern matches, return as is
-        return $number;
-    }
-
-    /**
-     * Mutator to format plate number before saving.
-     *
-     * @param string $value
-     * @return void
-     */
-    public function setNumberAttribute($value): void
-    {
-        $this->attributes['number'] = self::formatNumber($value);
-    }
-
-    /**
      * Configure activity log options
      */
     public function getActivitylogOptions(): LogOptions

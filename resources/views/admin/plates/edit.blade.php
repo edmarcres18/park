@@ -52,24 +52,23 @@
                        name="number"
                        value="{{ old('number', $plate->number) }}"
                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('number') border-red-300 focus:ring-red-500 @enderror"
-                       placeholder="Enter plate number (e.g., ABC 123 or AA 12345)">
+                       placeholder="Enter plate number (e.g., ABC-123)">
                 @error('number')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
-                <p class="text-slate-500 text-xs mt-1">Format: AAA 123, AAA 1234, or AA 12345</p>
             </div>
 
             <!-- Owner Name Field -->
             <div>
                 <label for="owner_name" class="block text-sm font-medium text-slate-700 mb-2">
-                    Owner/Description <span class="text-red-500">*</span>
+                    Owner Name <span class="text-red-500">*</span>
                 </label>
                 <input type="text"
                        id="owner_name"
                        name="owner_name"
                        value="{{ old('owner_name', $plate->owner_name) }}"
                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('owner_name') border-red-300 focus:ring-red-500 @enderror"
-                       placeholder="Enter owner full name or description">
+                       placeholder="Enter owner full name">
                 @error('owner_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -194,46 +193,9 @@ document.querySelector('form').addEventListener('submit', function(e) {
 // Plate number formatting
 document.getElementById('number').addEventListener('input', function() {
     let value = this.value.toUpperCase();
-    // Remove any characters that aren't letters, numbers, or spaces
-    value = value.replace(/[^A-Z0-9\s]/g, '');
-
-    // Auto-format based on pattern
-    if (value.length > 0) {
-        // Remove all spaces first
-        let cleanValue = value.replace(/\s/g, '');
-
-        // Apply formatting based on length and pattern
-        if (cleanValue.length >= 3) {
-            let letters = cleanValue.substring(0, 3);
-            let numbers = cleanValue.substring(3);
-
-            // Check if it's motorcycle format (2 letters + 5 digits)
-            if (letters.length === 2 && numbers.length >= 5) {
-                value = letters + ' ' + numbers.substring(0, 5);
-            } else if (letters.length === 3) {
-                // Car format (3 letters + 3-4 digits)
-                if (numbers.length >= 3) {
-                    value = letters + ' ' + numbers.substring(0, Math.min(numbers.length, 4));
-                }
-            }
-        }
-    }
-
+    // Remove any characters that aren't letters, numbers, or hyphens
+    value = value.replace(/[^A-Z0-9-]/g, '');
     this.value = value;
-});
-
-// Validate plate format on blur
-document.getElementById('number').addEventListener('blur', function() {
-    const value = this.value.trim();
-    const isValid = /^([A-Z]{3}\s?\d{3,4}|[A-Z]{2}\s?\d{5})$/.test(value);
-
-    if (value && !isValid) {
-        this.classList.add('border-red-300', 'focus:ring-red-500');
-        this.classList.remove('border-slate-300', 'focus:ring-blue-500');
-    } else {
-        this.classList.remove('border-red-300', 'focus:ring-red-500');
-        this.classList.add('border-slate-300', 'focus:ring-blue-500');
-    }
 });
 
 // Owner name validation

@@ -25,24 +25,24 @@
                        id="number"
                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 @error('number') border-red-500 ring-2 ring-red-200 @enderror"
                        value="{{ old('number', $plate->number) }}"
-                       placeholder="e.g., ABC 123 or AA 12345"
+                       placeholder="e.g., ABC-123"
                        required>
                 @error('number')
                     <p class="text-red-500 text-sm mt-2"><i class="ri-error-warning-line mr-1"></i>{{ $message }}</p>
                 @enderror
-                <p class="text-slate-500 text-xs mt-1">Format: AAA 123, AAA 1234, or AA 12345</p>
+                <p class="text-slate-500 text-xs mt-1">Format: XXX-###</p>
             </div>
 
             <div class="mb-4">
                 <label for="owner_name" class="block text-sm font-medium text-slate-700 mb-2">
-                    <i class="ri-user-line mr-1"></i>Owner/Description
+                    <i class="ri-user-line mr-1"></i>Owner Name
                 </label>
                 <input type="text"
                        name="owner_name"
                        id="owner_name"
                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 @error('owner_name') border-red-500 ring-2 ring-red-200 @enderror"
                        value="{{ old('owner_name', $plate->owner_name) }}"
-                       placeholder="Full name or description"
+                       placeholder="Full name of vehicle owner"
                        required>
                 @error('owner_name')
                     <p class="text-red-500 text-sm mt-2"><i class="ri-error-warning-line mr-1"></i>{{ $message }}</p>
@@ -86,47 +86,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const plateNumberInput = document.getElementById('number');
     const ownerNameInput = document.getElementById('owner_name');
 
-    // Format plate number as user types with proper validation
+    // Format plate number as user types
     plateNumberInput.addEventListener('input', function(e) {
-        let value = e.target.value.toUpperCase().replace(/[^A-Z0-9\s]/g, '');
+        let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-        // Auto-format based on pattern
-        if (value.length > 0) {
-            // Remove all spaces first
-            let cleanValue = value.replace(/\s/g, '');
-
-            // Apply formatting based on length and pattern
-            if (cleanValue.length >= 3) {
-                let letters = cleanValue.substring(0, 3);
-                let numbers = cleanValue.substring(3);
-
-                // Check if it's motorcycle format (2 letters + 5 digits)
-                if (letters.length === 2 && numbers.length >= 5) {
-                    value = letters + ' ' + numbers.substring(0, 5);
-                } else if (letters.length === 3) {
-                    // Car format (3 letters + 3-4 digits)
-                    if (numbers.length >= 3) {
-                        value = letters + ' ' + numbers.substring(0, Math.min(numbers.length, 4));
-                    }
-                }
-            }
+        if (value.length > 3) {
+            value = value.substring(0, 3) + '-' + value.substring(3, 6);
         }
 
         e.target.value = value;
-    });
-
-    // Validate plate format on blur
-    plateNumberInput.addEventListener('blur', function(e) {
-        const value = e.target.value.trim();
-        const isValid = /^([A-Z]{3}\s?\d{3,4}|[A-Z]{2}\s?\d{5})$/.test(value);
-
-        if (value && !isValid) {
-            this.classList.add('border-red-500', 'ring-red-200');
-            this.classList.remove('border-slate-300');
-        } else {
-            this.classList.remove('border-red-500', 'ring-red-200');
-            this.classList.add('border-slate-300');
-        }
     });
 
     // Capitalize owner name
