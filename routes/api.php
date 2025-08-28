@@ -30,13 +30,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('activity-logs', [ActivityLogApiController::class, 'index']);
         
         // Notification management routes (admin only)
-        Route::apiResource('notifications', NotificationController::class);
-        Route::post('notifications/{notification}/cancel', [NotificationController::class, 'cancel']);
-        Route::post('notifications/bulk', [NotificationController::class, 'sendBulk']);
-        Route::post('notifications/send-to-users', [NotificationController::class, 'sendToUsers']);
-        Route::post('notifications/send-to-role', [NotificationController::class, 'sendToRole']);
-        Route::get('notifications-stats', [NotificationController::class, 'stats']);
-        Route::get('notifications-scheduled', [NotificationController::class, 'scheduled']);
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::post('/', [NotificationController::class, 'store'])->name('store');
+            Route::get('/{notification}', [NotificationController::class, 'show'])->name('show');
+            Route::put('/{notification}', [NotificationController::class, 'update'])->name('update');
+            Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
+            Route::post('/{notification}/cancel', [NotificationController::class, 'cancel'])->name('cancel');
+            Route::post('/bulk', [NotificationController::class, 'sendBulk'])->name('bulk');
+            Route::post('/send-to-users', [NotificationController::class, 'sendToUsers'])->name('send-to-users');
+            Route::post('/send-to-role', [NotificationController::class, 'sendToRole'])->name('send-to-role');
+            Route::get('/stats/overview', [NotificationController::class, 'stats'])->name('stats');
+            Route::get('/scheduled/list', [NotificationController::class, 'scheduled'])->name('scheduled');
+        });
     });
 
     // Attendant-only API endpoints

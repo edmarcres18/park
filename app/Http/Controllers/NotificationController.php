@@ -349,6 +349,27 @@ class NotificationController extends Controller
     }
 
     /**
+     * Delete a notification
+     */
+    public function destroy(Notification $notification): JsonResponse
+    {
+        try {
+            $notification->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete notification: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Update user FCM token
      */
     public function updateFcmToken(Request $request): JsonResponse
