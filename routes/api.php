@@ -13,7 +13,6 @@ use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\SystemApiController;
 use App\Http\Controllers\TicketPrintController;
-use App\Http\Controllers\NotificationController;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
@@ -28,21 +27,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::put('users/{user}/status', [UserController::class, 'updateStatus']);
         Route::get('activity-logs', [ActivityLogApiController::class, 'index']);
-        
-        // Notification management routes (admin only)
-        Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::get('/', [NotificationController::class, 'index'])->name('index');
-            Route::post('/', [NotificationController::class, 'store'])->name('store');
-            Route::get('/{notification}', [NotificationController::class, 'show'])->name('show');
-            Route::put('/{notification}', [NotificationController::class, 'update'])->name('update');
-            Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
-            Route::post('/{notification}/cancel', [NotificationController::class, 'cancel'])->name('cancel');
-            Route::post('/bulk', [NotificationController::class, 'sendBulk'])->name('bulk');
-            Route::post('/send-to-users', [NotificationController::class, 'sendToUsers'])->name('send-to-users');
-            Route::post('/send-to-role', [NotificationController::class, 'sendToRole'])->name('send-to-role');
-            Route::get('/stats/overview', [NotificationController::class, 'stats'])->name('stats');
-            Route::get('/scheduled/list', [NotificationController::class, 'scheduled'])->name('scheduled');
-        });
     });
 
     // Attendant-only API endpoints
@@ -85,9 +69,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         // Printers API removed
     });
-
-    // FCM token update (available to all authenticated users)
-    Route::post('/fcm-token', [NotificationController::class, 'updateFcmToken']);
 });
 
 // JSON fallback for unmatched API routes

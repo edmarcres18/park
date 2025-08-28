@@ -28,7 +28,6 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
-        'fcm_token',
     ];
 
     /**
