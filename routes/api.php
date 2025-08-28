@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\SystemApiController;
 use App\Http\Controllers\TicketPrintController;
+use App\Http\Controllers\NotificationController;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
@@ -27,6 +28,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::put('users/{user}/status', [UserController::class, 'updateStatus']);
         Route::get('activity-logs', [ActivityLogApiController::class, 'index']);
+        
+        // Notification management routes (admin only)
+        Route::apiResource('notifications', NotificationController::class);
+        Route::post('notifications/{notification}/cancel', [NotificationController::class, 'cancel']);
+        Route::post('notifications/bulk', [NotificationController::class, 'sendBulk']);
+        Route::post('notifications/send-to-users', [NotificationController::class, 'sendToUsers']);
+        Route::post('notifications/send-to-role', [NotificationController::class, 'sendToRole']);
+        Route::get('notifications-stats', [NotificationController::class, 'stats']);
+        Route::get('notifications-scheduled', [NotificationController::class, 'scheduled']);
     });
 
     // Attendant-only API endpoints
@@ -69,6 +79,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         // Printers API removed
     });
+
+    // FCM token update (available to all authenticated users)
+    Route::post('/fcm-token', [NotificationController::class, 'updateFcmToken']);
 });
 
 // JSON fallback for unmatched API routes
