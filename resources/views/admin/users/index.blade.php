@@ -125,6 +125,7 @@
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">User</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Branch</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Joined</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
@@ -167,6 +168,24 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
+                                @if($user->branch)
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-building-line text-white text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-slate-900">{{ $user->branch->name }}</div>
+                                            <div class="text-xs text-slate-500">{{ $user->branch->code }}</div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                        <i class="ri-building-line mr-1"></i>
+                                        Not Assigned
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @if($user->status === 'active')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         <i class="ri-check-circle-line mr-1"></i>
@@ -198,6 +217,11 @@
                                         <i class="ri-eye-line mr-1"></i>
                                         View
                                     </a>
+                                    <a href="{{ route('admin.users.edit', $user) }}"
+                                       class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition-colors duration-200">
+                                        <i class="ri-edit-line mr-1"></i>
+                                        Edit
+                                    </a>
                                     @if($user->status === 'pending')
                                         <button onclick="approveUser({{ $user->id }}, '{{ $user->name }}')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-green-700 bg-green-100 hover:bg-green-200 transition-colors duration-200">
@@ -227,7 +251,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center">
+                            <td colspan="8" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center space-y-4">
                                     <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
                                         <i class="ri-user-line text-2xl text-slate-400"></i>

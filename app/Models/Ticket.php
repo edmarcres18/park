@@ -40,6 +40,7 @@ class Ticket extends Model
         'postal_code',
         'template_slug',
         'template_data',
+        'branch_id',
     ];
 
     /**
@@ -88,6 +89,14 @@ class Ticket extends Model
     public function plate(): BelongsTo
     {
         return $this->belongsTo(Plate::class, 'plate_number', 'number');
+    }
+
+    /**
+     * Get the branch that owns this ticket.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     /**
@@ -425,5 +434,23 @@ class Ticket extends Model
             ];
         }
         return $session->getFeeBreakdown();
+    }
+
+    /**
+     * Boot the model and set up event listeners.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($ticket) {
+            // Auto-assign branch_id if user is an attendant and has a branch
+            if (!$ticket->branch_id && auth()->check()) {
+                $user = auth()->user();
+                if ($user->hasRole('attendant') && $user->branch_id) {
+                    $ticket->branch_id = $user->branch_id;
+                }
+            }
+        });
     }
 }

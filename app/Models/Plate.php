@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -20,6 +21,7 @@ class Plate extends Model
         'number',
         'owner_name',
         'vehicle_type',
+        'branch_id',
     ];
 
     /**
@@ -36,6 +38,14 @@ class Plate extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'plate_number', 'number');
+    }
+
+    /**
+     * Get the branch that owns this plate.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     /**
@@ -234,6 +244,24 @@ class Plate extends Model
     public function setNumberAttribute($value): void
     {
         $this->attributes['number'] = self::formatNumber($value);
+    }
+
+    /**
+     * Boot the model and set up event listeners.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($plate) {
+            // Auto-assign branch_id if user is an attendant and has a branch
+            if (!$plate->branch_id && auth()->check()) {
+                $user = auth()->user();
+                if ($user->hasRole('attendant') && $user->branch_id) {
+                    $plate->branch_id = $user->branch_id;
+                }
+            }
+        });
     }
 
     /**

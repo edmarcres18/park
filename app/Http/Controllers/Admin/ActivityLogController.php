@@ -34,7 +34,7 @@ class ActivityLogController extends Controller
         ]);
 
         // Build the query with eager loading
-        $query = Activity::with(['causer', 'subject'])
+        $query = Activity::with(['causer.branch', 'subject'])
             ->when($request->filled('date_from'), function ($q) use ($request) {
                 $q->whereDate('created_at', '>=', $request->date_from);
             })

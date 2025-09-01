@@ -104,6 +104,7 @@
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">#</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Ticket Number</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Plate Number</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Branch</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">Time In</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">Time Out</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Rate</th>
@@ -132,6 +133,24 @@
                                 <i class="ri-car-line mr-1"></i>
                                 {{ $ticket->plate_number }}
                             </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($ticket->branch)
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="ri-building-line text-white text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-slate-900">{{ $ticket->branch->name }}</div>
+                                        <div class="text-xs text-slate-500">{{ $ticket->branch->code }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                    <i class="ri-building-line mr-1"></i>
+                                    Not Assigned
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 hidden md:table-cell">
                             <div class="flex items-center">
@@ -173,7 +192,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center">
+                        <td colspan="8" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                                     <i class="ri-ticket-line text-slate-400 text-2xl"></i>

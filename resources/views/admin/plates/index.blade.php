@@ -40,6 +40,7 @@
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Number</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Owner Name</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Vehicle Type</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Branch</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Created</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -66,6 +67,24 @@
                                     <i class="ri-car-line mr-1"></i>
                                     {{ $plate->vehicle_type }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($plate->branch)
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-building-line text-white text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-slate-900">{{ $plate->branch->name }}</div>
+                                            <div class="text-xs text-slate-500">{{ $plate->branch->code }}</div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                        <i class="ri-building-line mr-1"></i>
+                                        Not Assigned
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                 {{ $plate->created_at ? $plate->created_at->format('M d, Y') : 'N/A' }}

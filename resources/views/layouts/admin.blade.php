@@ -2,8 +2,11 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>@yield('title', $siteSettings->app_name ?? config('app.name', 'ParkSmart')) - {{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -19,22 +22,39 @@
                     },
                     colors: {
                         'primary': {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a'
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
                         },
                         'sidebar': {
                             50: '#f8fafc',
-                            900: '#0f172a',
-                            800: '#1e293b'
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a'
                         }
                     },
                     animation: {
-                        'slide-in': 'slide-in 0.3s ease-out',
-                        'fade-in': 'fade-in 0.2s ease-out'
+                        'slide-in': 'slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        'slide-out': 'slide-out 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        'fade-in': 'fade-in 0.2s ease-out',
+                        'bounce-gentle': 'bounce-gentle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    backdropBlur: {
+                        'xs': '2px'
+                    },
+                    spacing: {
+                        '18': '4.5rem',
+                        '88': '22rem'
                     }
                 }
             }
@@ -42,12 +62,16 @@
     </script>
     <style>
         @keyframes slide-in {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
         }
         @keyframes fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slide-in-right {
             from { transform: translateX(100%); opacity: 0; }
@@ -57,15 +81,30 @@
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
         }
+        @keyframes bounce-gentle {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
         @keyframes bounce-in {
             0% { transform: scale(0.3); opacity: 0; }
             50% { transform: scale(1.05); }
             70% { transform: scale(0.9); }
             100% { transform: scale(1); opacity: 1; }
         }
+        
+        /* Enhanced Glass Effect */
         .glass-effect {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px) saturate(180%);
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-dark {
+            backdrop-filter: blur(16px) saturate(180%);
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .toast-enter {
             animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -110,53 +149,156 @@
             background: rgba(156, 163, 175, 0.7);
         }
 
-        /* Responsive Design Improvements */
-        @media (max-width: 640px) {
-            .sidebar-text { display: none; }
-            aside { width: 4rem !important; }
-            nav a, nav button { justify-content: center !important; padding: 0.75rem !important; }
-            nav a span, nav button span { display: none; }
-            nav .ml-auto, nav .mr-4 { display: none; }
-            .glass-effect { backdrop-filter: blur(5px); }
+        /* Enhanced Touch Targets */
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Focus Ring */
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Enhanced Tooltips */
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 60;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%) translateY(-4px) scale(0.95);
         }
 
-        @media (max-width: 768px) {
-            .header-search { display: none !important; }
-            .profile-info { display: none !important; }
-            h1 { font-size: 1.5rem !important; }
-            .main-content { padding: 1rem !important; }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(15, 23, 42, 0.95);
         }
 
-        @media (max-width: 1024px) {
-            .lg\:hidden { display: block !important; }
-            .lg\:translate-x-0 { transform: translateX(-100%) !important; }
-            .notifications-sidebar { width: 100vw !important; }
+        .group:hover .tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
         }
-
-        @media (min-width: 1025px) {
-            #sidebar { transform: translateX(0) !important; }
-        }
-
-        /* Flexible Grid System */
+        
+        /* Responsive Grid System */
         .responsive-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+            gap: 1rem;
         }
 
-        /* Touch-friendly buttons for mobile */
-        @media (max-width: 768px) {
-            button, .btn { min-height: 44px; min-width: 44px; }
+        @media (min-width: 768px) {
+            .responsive-grid {
+                gap: 1.5rem;
+            }
         }
-
-        /* Improved scrollbars for mobile */
+        
+        /* Custom Scrollbars */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 640px) {
+            .glass-effect {
+                backdrop-filter: blur(8px);
+                background: rgba(255, 255, 255, 0.9);
+            }
+            
+            .sidebar-mobile {
+                width: 100vw !important;
+            }
+            
+            .header-title {
+                font-size: 1.25rem !important;
+            }
+            
+            .header-subtitle {
+                font-size: 0.75rem !important;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .overflow-auto::-webkit-scrollbar { display: none; }
-            .overflow-auto { -ms-overflow-style: none; scrollbar-width: none; }
+            .md\:hidden {
+                display: none !important;
+            }
+            
+            .main-content {
+                padding: 1rem !important;
+            }
+            
+            .overflow-auto::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .overflow-auto {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\:fixed {
+                position: fixed !important;
+            }
+            
+            .lg\:translate-x-0 {
+                transform: translateX(0) !important;
+            }
+        }
+        
+        /* Safe Area Handling for Mobile */
+        @supports (padding: max(0px)) {
+            .safe-area-top {
+                padding-top: max(1rem, env(safe-area-inset-top));
+            }
+            .safe-area-bottom {
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 font-sans antialiased overflow-hidden lg:overflow-auto">
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 font-sans antialiased overflow-hidden" x-data="{ sidebarOpen: false, notificationsOpen: false }" x-cloak>
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3 max-w-sm w-full toast-container">
         @if (session('success'))
@@ -273,195 +415,304 @@
         #sidebar { transform: translateX(0); }
     }
 </style>
-    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" 
+         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300" 
+         :class="sidebarOpen || notificationsOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+         @click="sidebarOpen = false; notificationsOpen = false"></div>
 
     <div class="flex h-screen relative">
-        <!-- Left Sidebar -->
-        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 sm:w-72 bg-gradient-to-b from-sidebar-900 to-sidebar-800 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
-            <!-- Logo Section -->
-            <div class="flex items-center justify-between p-6 border-b border-slate-700">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center overflow-hidden">
+        <!-- Enhanced Left Sidebar -->
+        <aside id="sidebar" 
+               class="fixed lg:static inset-y-0 left-0 z-50 w-64 sm:w-72 lg:w-80 glass-dark text-white transform transition-all duration-300 ease-in-out shadow-2xl flex flex-col" 
+               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+            <!-- Enhanced Logo Section -->
+            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-white/10 safe-area-top">
+                <div class="flex items-center space-x-3 min-w-0 flex-1">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white/20">
                         @if(!empty($siteSettings->brand_logo))
-                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-10 h-10 object-contain rounded-xl">
+                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-full h-full object-contain rounded-xl" loading="lazy">
                         @else
-                            <i class="ri-admin-line text-xl text-white"></i>
+                            <i class="ri-admin-line text-xl sm:text-2xl text-white"></i>
                         @endif
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</h1>
-                        <p class="text-xs text-slate-400">Admin Control</p>
+                    <div class="min-w-0 flex-1">
+                        <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-white via-blue-100 to-indigo-200 bg-clip-text text-transparent truncate">{{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</h1>
+                        <p class="text-xs text-slate-300 truncate">Admin Dashboard</p>
                     </div>
                 </div>
-                <button id="close-sidebar" class="lg:hidden text-slate-400 hover:text-white transition-colors">
+                <button @click="sidebarOpen = false" 
+                        class="lg:hidden touch-target p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 focus-ring">
                     <i class="ri-close-line text-xl"></i>
                 </button>
             </div>
 
-            <!-- Navigation Menu -->
-            <nav class="mt-6 px-4 space-y-1 flex-1 overflow-y-auto pb-20">
+            <!-- Enhanced Navigation Menu -->
+            <nav class="mt-2 px-3 sm:px-4 space-y-1 flex-1 overflow-y-auto custom-scrollbar pb-20" role="navigation" aria-label="Admin Navigation">
                 <!-- Dashboard -->
-                <a href="{{ route('admin.dashboard') }}" class="group flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                    <i class="ri-dashboard-3-line text-xl mr-4"></i>
-                    <span class="font-medium">Dashboard</span>
-                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                        <i class="ri-arrow-right-s-line"></i>
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="group flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                   aria-current="{{ request()->routeIs('admin.dashboard') ? 'page' : 'false' }}">
+                    <i class="ri-dashboard-3-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                    <span class="font-medium truncate">Dashboard</span>
+                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1">
+                        <i class="ri-arrow-right-s-line text-lg"></i>
                     </div>
                 </a>
 
                 <!-- Plate Records -->
-                <div class="space-y-1">
-                    <div class="group">
-                    <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.plates.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('plate-submenu')">
-                            <i class="ri-car-line text-xl mr-4"></i>
-                            <span class="font-medium">Plate Records</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.plates.*') ? 'rotate-180' : '' }}" id="plate-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="plate-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.plates.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('admin.plates.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.plates.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-eye-line text-sm mr-3"></i>
-                                <span class="text-sm">View All Plates</span>
-                            </a>
-                            <a href="{{ route('admin.plates.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.plates.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Add New Plate</span>
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.plates.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.plates.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="plate-submenu">
+                        <i class="ri-car-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Plate Records</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="plate-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.plates.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.plates.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-eye-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">View All Plates</span>
+                        </a>
+                        <a href="{{ route('admin.plates.create') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.plates.create') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-add-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Add New Plate</span>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Parking Rates -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.rates.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('rates-submenu')">
-                            <i class="ri-settings-2-line text-xl mr-4"></i>
-                            <span class="font-medium">Parking Rates</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.rates.*') ? 'rotate-180' : '' }}" id="rates-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="rates-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.rates.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('admin.rates.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.rates.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-list-check text-sm mr-3"></i>
-                                <span class="text-sm">View All Rates</span>
-                            </a>
-                            <a href="{{ route('admin.rates.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.rates.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Add New Rate</span>
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.rates.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.rates.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="rates-submenu">
+                        <i class="ri-settings-2-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Parking Rates</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="rates-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.rates.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.rates.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-list-check text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">View All Rates</span>
+                        </a>
+                        <a href="{{ route('admin.rates.create') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.rates.create') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-add-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Add New Rate</span>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Parking Sessions -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.sessions.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('sessions-submenu')">
-                            <i class="ri-time-line text-xl mr-4"></i>
-                            <span class="font-medium">Parking Sessions</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="sessions-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.sessions.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('admin.sessions.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.sessions.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-list-check text-sm mr-3"></i>
-                                <span class="text-sm">All Sessions</span>
-                            </a>
-                            <a href="{{ route('admin.sessions.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.sessions.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Start New Session</span>
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.sessions.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.sessions.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="sessions-submenu">
+                        <i class="ri-time-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Parking Sessions</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="sessions-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.sessions.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.sessions.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-list-check text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">All Sessions</span>
+                        </a>
+                        <a href="{{ route('admin.sessions.create') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.sessions.create') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-add-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Start New Session</span>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Ticketing -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.tickets.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('ticketing-submenu')">
-                            <i class="ri-ticket-2-line text-xl mr-4"></i>
-                            <span class="font-medium">Ticketing</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.tickets.*') ? 'rotate-180' : '' }}" id="ticketing-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="ticketing-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.tickets.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('admin.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.tickets.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-list-check text-sm mr-3"></i>
-                                <span class="text-sm">All Tickets</span>
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.tickets.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.tickets.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="ticketing-submenu">
+                        <i class="ri-ticket-2-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Ticketing</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="ticketing-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.tickets.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.tickets.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-list-check text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">All Tickets</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Branch Management -->
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.branches.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.branches.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="branches-submenu">
+                        <i class="ri-building-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Branch Management</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+                        </div>
+                    </button>
+                    <div id="branches-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.branches.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.branches.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-list-check text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">All Branches</span>
+                        </a>
+                        <a href="{{ route('admin.branches.create') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.branches.create') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-add-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Add New Branch</span>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Reports & Sales -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.reports.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('reports-submenu')">
-                            <i class="ri-bar-chart-2-line text-xl mr-4"></i>
-                            <span class="font-medium">Reports & Sales</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.reports.*') ? 'rotate-180' : '' }}" id="reports-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="reports-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.reports.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('admin.reports.sales') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.reports.sales') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-calendar-line text-sm mr-3"></i>
-                                <span class="text-sm">Daily Sales</span>
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.reports.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.reports.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="reports-submenu">
+                        <i class="ri-bar-chart-2-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Reports & Sales</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="reports-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.reports.sales') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.reports.sales') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-calendar-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Daily Sales</span>
+                        </a>
                     </div>
                 </div>
 
                 <!-- User Management -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('users-submenu')">
-                            <i class="ri-team-line text-xl mr-4"></i>
-                            <span class="font-medium">User Management</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('admin.users.*') ? 'rotate-180' : '' }}" id="users-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="users-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('admin.users.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('admin.users.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-user-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Create New User</span>
-                            </a>
-                            <a href="{{ route('admin.users.pending') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users.pending') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-user-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Pending Attendants</span>
-                                @php
-                                    $pendingCount = \App\Models\User::getPendingAttendantsCount();
-                                @endphp
-                                @if($pendingCount > 0)
-                                    <span class="ml-auto bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">{{ $pendingCount }}</span>
-                                @endif
-                            </a>
-                            <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-user-line text-sm mr-3"></i>
-                                <span class="text-sm">Active Attendants</span>
-                                @php
-                                    $activeCount = \App\Models\User::getActiveAttendantsCount();
-                                @endphp
-                                @if($activeCount > 0)
-                                    <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">{{ $activeCount }}</span>
-                                @endif
-                            </a>
-                            <a href="{{ route('admin.users.rejected') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users.rejected') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-user-forbid-line text-sm mr-3"></i>
-                                <span class="text-sm">Rejected Registrations</span>
-                                @php
-                                    $rejectedCount = \App\Models\User::getRejectedAttendantsCount();
-                                @endphp
-                                @if($rejectedCount > 0)
-                                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $rejectedCount }}</span>
-                                @endif
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('admin.users.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="users-submenu">
+                        <i class="ri-team-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">User Management</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="users-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('admin.users.create') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.users.create') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-user-add-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Create New User</span>
+                        </a>
+                        <a href="{{ route('admin.users.pending') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.users.pending') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-user-add-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Pending Attendants</span>
+                            @php
+                                $pendingCount = \App\Models\User::getPendingAttendantsCount();
+                            @endphp
+                            @if($pendingCount > 0)
+                                <span class="ml-auto bg-yellow-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-sm">{{ $pendingCount }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.users.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-user-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Active Attendants</span>
+                            @php
+                                $activeCount = \App\Models\User::getActiveAttendantsCount();
+                            @endphp
+                            @if($activeCount > 0)
+                                <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-sm">{{ $activeCount }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('admin.users.rejected') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.users.rejected') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-user-forbid-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Rejected Registrations</span>
+                            @php
+                                $rejectedCount = \App\Models\User::getRejectedAttendantsCount();
+                            @endphp
+                            @if($rejectedCount > 0)
+                                <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-sm">{{ $rejectedCount }}</span>
+                            @endif
+                        </a>
                     </div>
                 </div>
 
@@ -481,59 +732,59 @@
                 </a> -->
 
                 <!-- Settings -->
-                <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all duration-200 {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}"  onclick="toggleSubmenu('settings-submenu')">
-                            <i class="ri-settings-3-line text-xl mr-4"></i>
-                            <span class="font-medium">Settings</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'rotate-180' : '' }}" id="settings-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="settings-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-user-settings-line text-sm mr-3"></i>
-                                <span class="text-sm">My Profile</span>
-                            </a>
-                            <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings.index') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-apps-line text-sm mr-3"></i>
-                                <span class="text-sm">Site Settings</span>
-                            </a>
-                            <a href="{{ route('admin.settings.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings.create') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Add Setting</span>
-                            </a>
-                            <a href="{{ route('admin.ticket-config.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.ticket-config.edit') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-ticket-line text-sm mr-3"></i>
-                                <span class="text-sm">Ticket Config</span>
-                            </a>
-                            <a href="{{ route('admin.activity-logs.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.activity-logs.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-history-line text-sm mr-3"></i>
-                                <span class="text-sm">Activity Logs</span>
-                            </a>
-                            <a href="{{ route('admin.location-monitor.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('admin.location-monitor.*') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-map-pin-line text-sm mr-3"></i>
-                                <span class="text-sm">Location Monitor</span>
-                            </a>
+                <div class="space-y-1" x-data="{ open: {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" 
+                            class="group w-full flex items-center px-3 sm:px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-blue-600 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('profile.*') || request()->routeIs('admin.settings.*') || request()->routeIs('admin.activity-logs.*') || request()->routeIs('admin.location-monitor.*') || request()->routeIs('admin.ticket-config.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-lg ring-2 ring-white/20' : '' }}" 
+                            :aria-expanded="open" 
+                            aria-controls="settings-submenu">
+                        <i class="ri-settings-3-line text-xl mr-3 sm:mr-4 flex-shrink-0"></i>
+                        <span class="font-medium truncate">Settings</span>
+                        <div class="ml-auto">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </div>
+                    </button>
+                    <div id="settings-submenu" 
+                         class="ml-6 sm:ml-8 space-y-1 mt-2 overflow-hidden transition-all duration-300" 
+                         x-show="open" 
+                         x-transition:enter="transition ease-out duration-300" 
+                         x-transition:enter-start="opacity-0 transform -translate-y-2" 
+                         x-transition:enter-end="opacity-100 transform translate-y-0" 
+                         x-transition:leave="transition ease-in duration-200" 
+                         x-transition:leave-start="opacity-100 transform translate-y-0" 
+                         x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <a href="{{ route('profile.edit') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-user-settings-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">My Profile</span>
+                        </a>
+                        <a href="{{ route('admin.settings.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.settings.index') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-apps-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Site Settings</span>
+                        </a>
+                        <a href="{{ route('admin.activity-logs.index') }}" 
+                           class="flex items-center px-3 sm:px-4 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring {{ request()->routeIs('admin.activity-logs.*') ? 'bg-gradient-to-r from-primary-600 to-blue-600 text-white shadow-md' : '' }}">
+                            <i class="ri-history-line text-sm mr-3 flex-shrink-0"></i>
+                            <span class="text-sm truncate">Activity Logs</span>
+                        </a>
                     </div>
                 </div>
             </nav>
 
-            <!-- Bottom Section -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+            <!-- Enhanced Bottom Section -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 safe-area-bottom">
                 <div class="flex items-center space-x-3 mb-4">
-                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff&rounded=true" alt="Admin" class="w-10 h-10 rounded-full ring-2 ring-blue-500">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-white">{{ Auth::user()->name ?? 'Admin User' }}</p>
-                        <p class="text-xs text-slate-400">Administrator</p>
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Admin User') }}&background=0ea5e9&color=fff&rounded=true" alt="Admin" class="w-10 h-10 rounded-full ring-2 ring-primary-500/50 shadow-lg" loading="lazy">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name ?? 'Admin User' }}</p>
+                        <p class="text-xs text-slate-300 truncate">Administrator</p>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                    <button type="submit" class="w-full flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl transition-all duration-200 font-medium shadow-lg touch-target focus-ring">
                         <i class="ri-logout-box-line mr-2"></i>
-                        Sign Out
+                        <span class="truncate">Sign Out</span>
                     </button>
                 </form>
             </div>
@@ -544,39 +795,40 @@
             <!-- Top Header -->
             <header class="glass-effect border-b border-white/20 px-4 lg:px-8 py-4 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-colors">
+                    <div class="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                        <button @click="sidebarOpen = !sidebarOpen" 
+                                class="lg:hidden touch-target p-2.5 bg-white/70 hover:bg-white/90 rounded-xl transition-all duration-200 shadow-sm focus-ring" 
+                                aria-label="Toggle sidebar">
                             <i class="ri-menu-line text-xl text-slate-700"></i>
                         </button>
-                        <div>
-                            <h1 class="text-2xl lg:text-3xl font-bold text-slate-800">@yield('title', 'Dashboard')</h1>
-                            <p class="text-sm text-slate-600 mt-1">@yield('subtitle', 'Welcome back, manage your parking system')</p>
+                        <div class="min-w-0 flex-1">
+                            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 truncate header-title">@yield('title', 'Dashboard')</h1>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-0.5 truncate header-subtitle">@yield('subtitle', 'Welcome back, manage your parking system')</p>
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-4">
-                        <!-- Search -->
-                        <div class="hidden md:block relative header-search">
-                            <input type="text" placeholder="Search..." class="w-64 lg:w-72 xl:w-80 pl-10 pr-4 py-2 bg-white/60 border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <i class="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        </div>
-
+                    <!-- Right Section -->
+                    <div class="flex items-center space-x-2 sm:space-x-3 header-actions">
                         <!-- Notifications -->
-                        <button id="notifications-btn" class="relative p-2 bg-white/60 hover:bg-white/80 rounded-xl transition-colors">
-                            <i class="ri-notification-3-line text-xl text-slate-700"></i>
+                        <button @click="notificationsOpen = !notificationsOpen" 
+                                class="relative touch-target p-2.5 bg-white/70 hover:bg-white/90 rounded-xl transition-all duration-200 shadow-sm focus-ring" 
+                                aria-label="Toggle notifications">
+                            <i class="ri-notification-3-line text-lg sm:text-xl text-slate-700"></i>
                             @php
                                 $unreadNotifications = Auth::user()->unreadNotifications;
                                 $unreadCount = $unreadNotifications->count();
                             @endphp
-                            <span id="notifications-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center {{ $unreadCount > 0 ? '' : 'hidden' }}">{{ $unreadCount }}</span>
+                            @if($unreadCount > 0)
+                                <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium animate-pulse">{{ $unreadCount }}</span>
+                            @endif
                         </button>
 
                         <!-- Profile -->
-                        <div class="hidden md:flex items-center space-x-3 bg-white/60 rounded-xl px-3 py-2 profile-info">
-                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff&rounded=true" alt="Admin" class="w-8 h-8 rounded-full">
-                            <div class="text-sm">
-                                <p class="font-medium text-slate-800">{{ Auth::user()->name ?? 'Admin User' }}</p>
-                                <p class="text-slate-600">Administrator</p>
+                        <div class="hidden md:flex items-center space-x-3 bg-white/70 rounded-xl px-3 py-2 profile-info shadow-sm">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Admin User') }}&background=0ea5e9&color=fff&rounded=true" alt="Admin" class="w-8 h-8 rounded-full ring-2 ring-white/50" loading="lazy">
+                            <div class="text-sm min-w-0">
+                                <p class="font-medium text-slate-800 truncate">{{ Auth::user()->name ?? 'Admin User' }}</p>
+                                <p class="text-slate-600 text-xs truncate">Administrator</p>
                             </div>
                         </div>
                     </div>
@@ -589,65 +841,83 @@
             </main>
         </div>
 
-        <!-- Right Sidebar for Notifications -->
-        <aside id="notifications-sidebar" class="fixed inset-y-0 right-0 z-50 w-80 bg-white/95 backdrop-blur-lg border-l border-white/20 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out lg:w-96">
-            <div class="h-full flex flex-col">
-                <!-- Header -->
-                <div class="p-6 border-b border-slate-200">
+        <!-- Enhanced Right Sidebar for Notifications -->
+        <aside id="notifications-sidebar" 
+               class="fixed inset-y-0 right-0 z-50 w-80 sm:w-88 lg:w-96 glass-effect border-l border-white/20 shadow-2xl transform transition-all duration-300 ease-in-out" 
+               :class="notificationsOpen ? 'translate-x-0' : 'translate-x-full'">
+            <div class="h-full flex flex-col safe-area-top safe-area-bottom">
+                <!-- Enhanced Header -->
+                <div class="p-4 sm:p-6 border-b border-slate-200/50">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-bold text-slate-800">Notifications</h2>
-                        <button id="close-notifications" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="ri-notification-3-line text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-800">Notifications</h2>
+                                <p class="text-xs sm:text-sm text-slate-600">Stay updated with recent activities</p>
+                            </div>
+                        </div>
+                        <button @click="notificationsOpen = false" 
+                                class="touch-target p-2 hover:bg-slate-100 rounded-lg transition-all duration-200 focus-ring" 
+                                aria-label="Close notifications">
                             <i class="ri-close-line text-xl text-slate-600"></i>
                         </button>
                     </div>
-                    <p class="text-sm text-slate-600 mt-1">Stay updated with recent activities</p>
                 </div>
 
-                <!-- Notifications List -->
-                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="notifications-list">
+                <!-- Enhanced Notifications List -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" id="notifications-list">
                     @php
                         $notifications = Auth::user()->notifications()->latest()->take(10)->get();
                     @endphp
 
                     @forelse($notifications as $notification)
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow {{ $notification->read_at ? 'opacity-75' : '' }}">
+                        <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/50 rounded-xl p-4 hover:shadow-lg hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 {{ $notification->read_at ? 'opacity-75' : '' }}" data-id="{{ $notification->id }}">
                             <div class="flex items-start space-x-3">
-                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="ri-user-add-line text-white"></i>
+                                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <i class="ri-user-add-line text-white text-sm"></i>
                                 </div>
-                                <div class="flex-1">
+                                <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between">
-                                        <p class="font-semibold text-slate-800">New User Registered</p>
+                                        <p class="font-semibold text-slate-800 text-sm truncate">New User Registered</p>
                                         @if(!$notification->read_at)
-                                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                            <span class="w-2 h-2 bg-primary-500 rounded-full animate-pulse flex-shrink-0 ml-2"></span>
                                         @endif
                                     </div>
-                                    <p class="text-sm text-slate-600 mt-1">
+                                    <p class="text-sm text-slate-600 mt-1 leading-relaxed">
                                         {{ $notification->data['name'] ?? 'Unknown User' }} joined the platform
                                     </p>
-                                    <p class="text-xs text-slate-500 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
-                                    @if(!$notification->read_at)
-                                        <button onclick="window.markAsRead('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-800 underline mt-2">
-                                            Mark as read
-                                        </button>
-                                    @endif
+                                    <div class="flex items-center justify-between mt-3">
+                                        <p class="text-xs text-slate-500">{{ $notification->created_at->diffForHumans() }}</p>
+                                        @if(!$notification->read_at)
+                                            <button onclick="window.markAsRead('{{ $notification->id }}')" class="text-xs text-primary-600 hover:text-primary-800 font-medium transition-colors duration-200">
+                                                Mark as read
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-8">
-                            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="ri-notification-off-line text-2xl text-slate-400"></i>
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                                <i class="ri-notification-off-line text-3xl text-slate-400"></i>
                             </div>
-                            <p class="text-slate-500 text-sm">No notifications yet</p>
-                            <p class="text-slate-400 text-xs mt-1">You'll see notifications here when they arrive</p>
+                            <p class="text-slate-500 text-sm font-medium">No notifications yet</p>
+                            <p class="text-slate-400 text-xs mt-2 max-w-48 mx-auto leading-relaxed">You'll see notifications here when they arrive</p>
                         </div>
                     @endforelse
                 </div>
 
-                <!-- Footer Actions -->
-                <div class="p-4 border-t border-slate-200">
-                    <a href="{{ route('admin.notifications.index') }}" class="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium text-center">
+                <!-- Enhanced Footer Actions -->
+                <div class="p-4 border-t border-slate-200/50 space-y-3">
+                    <button onclick="window.markAllAsRead()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 px-4 rounded-xl transition-all duration-200 font-medium text-sm focus-ring">
+                        <i class="ri-check-double-line mr-2"></i>
+                        Mark All as Read
+                    </button>
+                    <a href="{{ route('admin.notifications.index') }}" class="block w-full bg-gradient-to-r from-primary-600 to-blue-600 text-white py-2.5 px-4 rounded-xl hover:from-primary-700 hover:to-blue-700 transition-all duration-200 font-medium text-center text-sm shadow-lg focus-ring">
+                        <i class="ri-external-link-line mr-2"></i>
                         View All Notifications
                     </a>
                 </div>

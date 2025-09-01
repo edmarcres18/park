@@ -4,20 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles')->get();
+        $users = User::with(['roles', 'branch'])->get();
 
         return view('admin.users.index', compact('users'));
     }
 
     public function rejected()
     {
-        $users = User::whereHas('roles', function ($query) {
+        $users = User::with(['roles', 'branch'])->whereHas('roles', function ($query) {
             $query->where('name', 'attendant')
             ->where('status', 'rejected');
         })->get();
@@ -27,7 +28,7 @@ class UserController extends Controller
 
     public function pending()
     {
-        $users = User::whereHas('roles', function ($query) {
+        $users = User::with(['roles', 'branch'])->whereHas('roles', function ($query) {
             $query->where('name', 'attendant')
             ->where('status', 'pending');
         })->get();
@@ -37,12 +38,14 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $user->load(['roles', 'branch']);
         return view('admin.users.show', compact('user'));
     }
 
     public function create()
     {
-        return view('admin.users.create');
+        $branches = Branch::orderBy('name')->get();
+        return view('admin.users.create', compact('branches'));
     }
 
     public function store(Request $request)
@@ -53,6 +56,7 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'status' => ['required', 'in:active,pending,rejected'],
             'role' => ['required', 'in:admin,attendant'],
+            'branch_id' => ['nullable', 'exists:branches,id'],
         ]);
 
         try {
@@ -61,6 +65,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
                 'status' => $request->status,
+                'branch_id' => $request->branch_id,
             ]);
 
             // Assign the selected role
@@ -79,6 +84,61 @@ class UserController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Failed to create user. Please try again or contact support.');
+        }
+    }
+
+    public function edit(User $user)
+    {
+        $branches = Branch::orderBy('name')->get();
+        $user->load(['roles', 'branch']);
+        return view('admin.users.edit', compact('user', 'branches'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'status' => ['required', 'in:active,pending,rejected'],
+            'role' => ['required', 'in:admin,attendant'],
+            'branch_id' => ['nullable', 'exists:branches,id'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        try {
+            $updateData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'status' => $request->status,
+                'branch_id' => $request->branch_id,
+            ];
+
+            // Only update password if provided
+            if ($request->filled('password')) {
+                $updateData['password'] = bcrypt($request->password);
+            }
+
+            $user->update($updateData);
+
+            // Update role if changed
+            $currentRole = $user->roles->first();
+            if (!$currentRole || $currentRole->name !== $request->role) {
+                $user->syncRoles([$request->role]);
+            }
+
+            return redirect()->route('admin.users.index')
+                ->with('success', "User '{$user->name}' has been updated successfully.");
+        } catch (\Exception $e) {
+            \Log::error('User update failed: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'admin_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update user. Please try again or contact support.');
         }
     }
 

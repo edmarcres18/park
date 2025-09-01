@@ -55,7 +55,7 @@ class TicketController extends Controller
         $tickets = $query->paginate(15);
 
         // Load relationships after pagination to avoid issues
-        $tickets->load(['parkingSession.creator', 'parkingSession.parkingRate']);
+        $tickets->load(['parkingSession.creator', 'parkingSession.parkingRate', 'branch']);
 
         if (auth()->user()->hasRole('admin')) {
             return view('tickets.index_admin', compact('tickets'));
@@ -69,10 +69,17 @@ class TicketController extends Controller
      */
     public function create()
     {
-        $activeSessions = ParkingSession::with(['parkingRate'])
+        $user = auth()->user();
+        $activeSessionsQuery = ParkingSession::with(['parkingRate'])
             ->active()
-            ->orderBy('start_time', 'desc')
-            ->get();
+            ->orderBy('start_time', 'desc');
+        
+        // Filter sessions by branch for attendant users
+        if (!$user->hasRole('admin') && $user->branch_id) {
+            $activeSessionsQuery->where('branch_id', $user->branch_id);
+        }
+        
+        $activeSessions = $activeSessionsQuery->get();
 
         return view('tickets.create', compact('activeSessions'));
     }
@@ -319,8 +326,11 @@ class TicketController extends Controller
     {
         $user = Auth::user();
 
-        // Both admin and attendant can see all tickets
-        // No filtering needed - attendants have same data access as admins
+        // Filter by branch for attendant users
+        if (!$user->hasRole('admin') && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
         return $query;
     }
 }

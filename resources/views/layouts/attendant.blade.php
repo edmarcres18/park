@@ -2,13 +2,16 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>@yield('title', $siteSettings->app_name ?? config('app.name', 'ParkSmart')) - {{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="{{ asset('js/geolocation.js') }}"></script>
     <script>
         tailwind.config = {
@@ -19,28 +22,50 @@
                     },
                     colors: {
                         'primary': {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a'
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b'
                         },
                         'sidebar': {
                             50: '#f8fafc',
-                            900: '#0f172a',
-                            800: '#1e293b'
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a'
+                        },
+                        'accent': {
+                            50: '#fef7ff',
+                            500: '#a855f7',
+                            600: '#9333ea'
                         }
+                    },
+                    spacing: {
+                        '18': '4.5rem',
+                        '88': '22rem'
                     },
                     animation: {
                         'slide-in': 'slide-in 0.3s ease-out',
-                        'fade-in': 'fade-in 0.2s ease-out'
+                        'fade-in': 'fade-in 0.2s ease-out',
+                        'bounce-subtle': 'bounce-subtle 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s infinite'
+                    },
+                    backdropBlur: {
+                        'xs': '2px'
                     }
                 }
             }
         }
     </script>
     <style>
+        /* Core Animations */
         @keyframes slide-in {
             from { transform: translateX(-100%); }
             to { transform: translateX(0); }
@@ -63,10 +88,31 @@
             70% { transform: scale(0.9); }
             100% { transform: scale(1); opacity: 1; }
         }
-        .glass-effect {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
+        @keyframes bounce-subtle {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0, -8px, 0); }
+            70% { transform: translate3d(0, -4px, 0); }
+            90% { transform: translate3d(0, -2px, 0); }
         }
+        @keyframes progress-shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Enhanced Glass Effect */
+        .glass-effect {
+            backdrop-filter: blur(16px) saturate(180%);
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-dark {
+            backdrop-filter: blur(16px) saturate(180%);
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Toast System */
         .toast-enter {
             animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
@@ -82,13 +128,9 @@
             opacity: 0.3;
             animation: progress-shrink 5s linear forwards;
         }
-        @keyframes progress-shrink {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
         .toast-hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         .toast-container {
             max-height: calc(100vh - 2rem);
@@ -96,68 +138,201 @@
             scrollbar-width: thin;
             scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
         }
-        .toast-container::-webkit-scrollbar {
-            width: 4px;
+
+        /* Custom Scrollbars */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-        .toast-container::-webkit-scrollbar-track {
-            background: transparent;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
         }
-        .toast-container::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.5);
-            border-radius: 2px;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.3);
+            border-radius: 3px;
         }
-        .toast-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.7);
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.5);
         }
 
-        /* Responsive Design Improvements */
+        /* Mobile-First Responsive Design */
+        .mobile-nav-item {
+            @apply flex items-center justify-center w-full h-12 rounded-xl transition-all duration-200;
+        }
+
+        /* Desktop Sidebar Fixed Positioning */
+        @media (min-width: 1024px) {
+            #sidebar {
+                position: fixed !important;
+                height: 100vh !important;
+                overflow-y: auto !important;
+            }
+            
+            #main-content-wrapper {
+                margin-left: 18rem; /* 72 * 0.25rem = 18rem */
+            }
+        }
+
+        @media (min-width: 1280px) {
+            #main-content-wrapper {
+                margin-left: 20rem; /* 80 * 0.25rem = 20rem */
+            }
+        }
+
+        /* Mobile Optimizations */
         @media (max-width: 640px) {
-            .sidebar-text { display: none; }
-            aside { width: 4rem !important; }
-            nav a, nav button { justify-content: center !important; padding: 0.75rem !important; }
-            nav a span, nav button span { display: none; }
-            nav .ml-auto, nav .mr-4 { display: none; }
-            .glass-effect { backdrop-filter: blur(5px); }
+            .toast-container {
+                left: 1rem;
+                right: 1rem;
+                top: 1rem;
+                max-width: calc(100vw - 2rem);
+            }
+            .glass-effect {
+                backdrop-filter: blur(8px);
+                background: rgba(255, 255, 255, 0.9);
+            }
+            .sidebar-collapsed {
+                width: 4rem !important;
+            }
+            .sidebar-collapsed .sidebar-text {
+                display: none;
+            }
+            .sidebar-collapsed .sidebar-arrow {
+                display: none;
+            }
         }
 
         @media (max-width: 768px) {
-            .header-search { display: none !important; }
-            .profile-info { display: none !important; }
-            h1 { font-size: 1.5rem !important; }
-            .main-content { padding: 1rem !important; }
+            .header-actions {
+                gap: 0.5rem;
+            }
+            .header-actions button,
+            .header-actions a {
+                padding: 0.5rem;
+                min-height: 44px;
+                min-width: 44px;
+            }
+            .header-title {
+                font-size: 1.25rem !important;
+            }
+            .header-subtitle {
+                font-size: 0.75rem !important;
+            }
         }
 
         @media (max-width: 1024px) {
-            .lg\:hidden { display: block !important; }
-            .lg\:translate-x-0 { transform: translateX(-100%) !important; }
+            .notifications-sidebar {
+                width: 100vw !important;
+                max-width: 100vw !important;
+            }
         }
 
-        @media (min-width: 1025px) {
-            #sidebar { transform: translateX(0) !important; }
+        /* Touch-friendly Interactive Elements */
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
         }
 
-        /* Flexible Grid System */
+        /* Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Focus States for Accessibility */
+        .focus-ring:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+
+        /* Smooth Transitions */
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Mobile Navigation Enhancements */
+        .mobile-nav-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Responsive Grid Improvements */
         .responsive-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+            gap: 1rem;
         }
 
-        /* Touch-friendly buttons for mobile */
-        @media (max-width: 768px) {
-            button, .btn { min-height: 44px; min-width: 44px; }
+        @media (min-width: 768px) {
+            .responsive-grid {
+                gap: 1.5rem;
+            }
         }
 
-        /* Improved scrollbars for mobile */
-        @media (max-width: 768px) {
-            .overflow-auto::-webkit-scrollbar { display: none; }
-            .overflow-auto { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Enhanced Tooltips */
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 60;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%) translateY(-4px) scale(0.95);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(15, 23, 42, 0.95);
+        }
+
+        .group:hover .tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+
+        /* Safe Area Handling for Mobile */
+        @supports (padding: max(0px)) {
+            .safe-area-top {
+                padding-top: max(1rem, env(safe-area-inset-top));
+            }
+            .safe-area-bottom {
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 font-sans antialiased overflow-hidden lg:overflow-auto">
+<body class="bg-gradient-to-br from-primary-50 to-blue-50 font-sans antialiased min-h-screen safe-area-top safe-area-bottom">
     <!-- Toast Notifications Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3 max-w-sm w-full toast-container">
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3 max-w-sm w-full toast-container sm:max-w-md">
         @if (session('success'))
             <div class="toast toast-success toast-enter bg-white border border-green-200 rounded-xl p-4 shadow-xl relative overflow-hidden hover:toast-hover transition-all duration-300 cursor-pointer" onclick="removeToast(this)">
                 <div class="flex items-start space-x-3">
@@ -243,123 +418,130 @@
         @endif
     </div>
 
-    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 mobile-nav-overlay z-40 lg:hidden hidden transition-opacity duration-300"></div>
 
-    <div class="flex h-screen relative">
-        <!-- Left Sidebar -->
-        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 sm:w-72 bg-gradient-to-b from-sidebar-900 to-sidebar-800 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
-            <!-- Logo Section -->
-            <div class="flex items-center justify-between p-6 border-b border-slate-700">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
+    <!-- Main App Container -->
+    <div class="flex min-h-screen relative">
+        <!-- Enhanced Left Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 sm:w-80 lg:w-72 xl:w-80 glass-dark text-white transform -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out shadow-2xl flex flex-col custom-scrollbar">
+            <!-- Enhanced Logo Section -->
+            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white/20">
                         @if(!empty($siteSettings->brand_logo))
-                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-10 h-10 object-contain rounded-xl">
+                            <img src="{{ asset('storage/' . $siteSettings->brand_logo) }}" alt="Brand Logo" class="w-12 h-12 object-contain rounded-2xl">
                         @else
-                            <i class="ri-user-line text-xl text-white"></i>
+                            <i class="ri-parking-line text-2xl text-white"></i>
                         @endif
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">{{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</h1>
-                        <p class="text-xs text-slate-400">Attendant Panel</p>
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-lg sm:text-xl font-bold text-white truncate">{{ $siteSettings->app_name ?? config('app.name', 'ParkSmart') }}</h1>
+                        <p class="text-xs text-slate-300 flex items-center">
+                            <i class="ri-shield-user-line mr-1"></i>
+                            Attendant Panel
+                        </p>
                     </div>
                 </div>
-                <button id="close-sidebar" class="lg:hidden text-slate-400 hover:text-white transition-colors">
+                <button id="close-sidebar" class="lg:hidden text-slate-400 hover:text-white transition-colors touch-target p-2 rounded-xl hover:bg-white/10 focus-ring">
                     <i class="ri-close-line text-xl"></i>
                 </button>
             </div>
 
-            <!-- Navigation Menu -->
-            <nav class="mt-6 px-4 space-y-1 flex-1 overflow-y-auto pb-20">
+            <!-- Enhanced Navigation Menu -->
+            <nav class="flex-1 px-3 sm:px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
                 <!-- Dashboard -->
-                <a href="{{ route('attendant.dashboard') }}" class="group flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.dashboard') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                    <i class="ri-dashboard-3-line text-xl mr-4"></i>
-                    <span class="font-medium">Dashboard</span>
-                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                        <i class="ri-arrow-right-s-line"></i>
+                <a href="{{ route('attendant.dashboard') }}" class="group flex items-center px-4 py-3.5 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-primary-700 rounded-2xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.dashboard') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg ring-2 ring-primary-500/30' : '' }}">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 mr-4 group-hover:bg-white/20 transition-colors">
+                        <i class="ri-dashboard-3-line text-lg"></i>
+                    </div>
+                    <span class="font-medium sidebar-text">Dashboard</span>
+                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity sidebar-arrow">
+                        <i class="ri-arrow-right-s-line text-sm"></i>
                     </div>
                 </a>
 
-                <!-- Plates -->
+                <!-- Plates Section -->
                 <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.plates.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('plates-submenu')">
-                            <i class="ri-car-line text-xl mr-4"></i>
-                            <span class="font-medium">Plates</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.plates.*') ? 'rotate-180' : '' }}" id="plates-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="plates-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.plates.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('attendant.plates.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.plates.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-eye-line text-sm mr-3"></i>
-                                <span class="text-sm">View All Plates</span>
-                            </a>
-                            <a href="{{ route('attendant.plates.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.plates.create') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Add New Plate</span>
-                            </a>
+                    <button class="w-full flex items-center px-4 py-3.5 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-primary-700 rounded-2xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.plates.*') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg ring-2 ring-primary-500/30' : '' }}" onclick="toggleSubmenu('plates-submenu')">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 mr-4 group-hover:bg-white/20 transition-colors">
+                            <i class="ri-car-line text-lg"></i>
                         </div>
+                        <span class="font-medium sidebar-text">Plates</span>
+                        <div class="ml-auto sidebar-arrow">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.plates.*') ? 'rotate-180' : '' }}" id="plates-submenu-icon"></i>
+                        </div>
+                    </button>
+                    <div id="plates-submenu" class="ml-12 space-y-1 mt-2 {{ request()->routeIs('attendant.plates.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('attendant.plates.index') }}" class="flex items-center px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.plates.index') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : '' }}">
+                            <i class="ri-eye-line text-sm mr-3"></i>
+                            <span class="text-sm sidebar-text">View All Plates</span>
+                        </a>
+                        <a href="{{ route('attendant.plates.create') }}" class="flex items-center px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.plates.create') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : '' }}">
+                            <i class="ri-add-line text-sm mr-3"></i>
+                            <span class="text-sm sidebar-text">Add New Plate</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Sessions -->
+                <!-- Sessions Section -->
                 <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('sessions-submenu')">
-                            <i class="ri-time-line text-xl mr-4"></i>
-                            <span class="font-medium">Sessions</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="sessions-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.sessions.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('attendant.sessions.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-list-check text-sm mr-3"></i>
-                                <span class="text-sm">All Sessions</span>
-                            </a>
-                            <a href="{{ route('attendant.sessions.create') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.sessions.create') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-add-line text-sm mr-3"></i>
-                                <span class="text-sm">Start New Session</span>
-                            </a>
+                    <button class="w-full flex items-center px-4 py-3.5 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-primary-700 rounded-2xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.sessions.*') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg ring-2 ring-primary-500/30' : '' }}" onclick="toggleSubmenu('sessions-submenu')">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 mr-4 group-hover:bg-white/20 transition-colors">
+                            <i class="ri-time-line text-lg"></i>
                         </div>
+                        <span class="font-medium sidebar-text">Sessions</span>
+                        <div class="ml-auto sidebar-arrow">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.sessions.*') ? 'rotate-180' : '' }}" id="sessions-submenu-icon"></i>
+                        </div>
+                    </button>
+                    <div id="sessions-submenu" class="ml-12 space-y-1 mt-2 {{ request()->routeIs('attendant.sessions.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('attendant.sessions.index') }}" class="flex items-center px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.sessions.index') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : '' }}">
+                            <i class="ri-list-check text-sm mr-3"></i>
+                            <span class="text-sm sidebar-text">All Sessions</span>
+                        </a>
+                        <a href="{{ route('attendant.sessions.create') }}" class="flex items-center px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.sessions.create') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : '' }}">
+                            <i class="ri-add-line text-sm mr-3"></i>
+                            <span class="text-sm sidebar-text">Start New Session</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Tickets -->
+                <!-- Tickets Section -->
                 <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('attendant.tickets.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('tickets-submenu')">
-                            <i class="ri-ticket-2-line text-xl mr-4"></i>
-                            <span class="font-medium">Tickets</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.tickets.*') ? 'rotate-180' : '' }}" id="tickets-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="tickets-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('attendant.tickets.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('attendant.tickets.index') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('attendant.tickets.index') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-list-check text-sm mr-3"></i>
-                                <span class="text-sm">All Tickets</span>
-                            </a>
+                    <button class="w-full flex items-center px-4 py-3.5 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-primary-700 rounded-2xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.tickets.*') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg ring-2 ring-primary-500/30' : '' }}" onclick="toggleSubmenu('tickets-submenu')">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 mr-4 group-hover:bg-white/20 transition-colors">
+                            <i class="ri-ticket-2-line text-lg"></i>
                         </div>
+                        <span class="font-medium sidebar-text">Tickets</span>
+                        <div class="ml-auto sidebar-arrow">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('attendant.tickets.*') ? 'rotate-180' : '' }}" id="tickets-submenu-icon"></i>
+                        </div>
+                    </button>
+                    <div id="tickets-submenu" class="ml-12 space-y-1 mt-2 {{ request()->routeIs('attendant.tickets.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('attendant.tickets.index') }}" class="flex items-center px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('attendant.tickets.index') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : '' }}">
+                            <i class="ri-list-check text-sm mr-3"></i>
+                            <span class="text-sm sidebar-text">All Tickets</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Settings -->
+                <!-- Settings Section -->
                 <div class="space-y-1">
-                    <div class="group">
-                        <button class="w-full flex items-center px-4 py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 rounded-xl transition-all duration-200 {{ request()->routeIs('profile.*') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}" onclick="toggleSubmenu('settings-submenu')">
-                            <i class="ri-settings-3-line text-xl mr-4"></i>
-                            <span class="font-medium">Settings</span>
-                            <div class="ml-auto">
-                                <i class="ri-arrow-down-s-line transform transition-transform duration-200" id="settings-submenu-icon"></i>
-                            </div>
-                        </button>
-                        <div id="settings-submenu" class="ml-8 space-y-1 mt-2 {{ request()->routeIs('profile.*') ? '' : 'hidden' }}">
-                            <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' : '' }}">
-                                <i class="ri-user-settings-line text-sm mr-3"></i>
-                                <span class="text-sm">Profile</span>
-                            </a>
+                    <button class="w-full flex items-center px-4 py-3.5 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-primary-600 hover:to-primary-700 rounded-2xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('profile.*') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg ring-2 ring-primary-500/30' : '' }}" onclick="toggleSubmenu('settings-submenu')">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10 mr-4 group-hover:bg-white/20 transition-colors">
+                            <i class="ri-settings-3-line text-lg"></i>
                         </div>
+                        <span class="font-medium sidebar-text">Settings</span>
+                        <div class="ml-auto sidebar-arrow">
+                            <i class="ri-arrow-down-s-line transform transition-transform duration-200 {{ request()->routeIs('profile.*') ? 'rotate-180' : '' }}" id="settings-submenu-icon"></i>
+                        </div>
+                    </button>
+                    <div id="settings-submenu" class="ml-12 space-y-1 mt-2 {{ request()->routeIs('profile.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 touch-target focus-ring {{ request()->routeIs('profile.edit') ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : '' }}">
+                            <i class="ri-user-settings-line text-sm mr-3"></i>
+                            <span class="text-sm sidebar-text">Profile</span>
+                        </a>
                     </div>
                 </div>
             </nav>
@@ -381,142 +563,166 @@
                 @endauth
             </script>
 
-            <!-- Bottom Section -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
-                <div class="flex items-center space-x-3 mb-4">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff&rounded=true" alt="Attendant" class="w-10 h-10 rounded-full ring-2 ring-green-500">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-white">{{ Auth::user()->name }}</p>
-                        <p class="text-xs text-slate-400">Attendant</p>
+            <!-- Enhanced Bottom Section -->
+            <div class="mt-auto p-4 border-t border-white/10 bg-gradient-to-t from-black/20 to-transparent">
+                <div class="flex items-center space-x-3 mb-4 p-3 bg-white/5 rounded-2xl">
+                    <div class="relative">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff&rounded=true" alt="Attendant" class="w-12 h-12 rounded-2xl ring-2 ring-primary-500/50 shadow-lg">
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse-slow"></div>
+                    </div>
+                    <div class="flex-1 min-w-0 sidebar-text">
+                        <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-slate-300 flex items-center">
+                            <i class="ri-shield-check-line mr-1 text-green-400"></i>
+                            Online
+                        </p>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                    <button type="submit" class="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-2xl transition-all duration-200 touch-target focus-ring shadow-lg hover:shadow-xl">
                         <i class="ri-logout-box-line mr-2"></i>
-                        Sign Out
+                        <span class="sidebar-text">Sign Out</span>
                     </button>
                 </form>
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Enhanced Main Content -->
         <div id="main-content-wrapper" class="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out">
-            <!-- Top Header -->
-            <header class="glass-effect border-b border-white/20 px-4 lg:px-8 py-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-colors">
+            <!-- Enhanced Top Header -->
+            <header class="glass-effect border-b border-white/20 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 shadow-sm sticky top-0 z-30">
+                <div class="flex items-center justify-between gap-4">
+                    <!-- Left Section -->
+                    <div class="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                        <button id="mobile-menu-btn" class="lg:hidden touch-target p-2 rounded-xl bg-white/70 hover:bg-white/90 transition-colors shadow-sm focus-ring">
                             <i class="ri-menu-line text-xl text-slate-700"></i>
                         </button>
-                        <div>
-                            <h1 class="text-2xl lg:text-3xl font-bold text-slate-800">@yield('title', 'Dashboard')</h1>
-                            <p class="text-sm text-slate-600 mt-1">@yield('subtitle', 'Manage your parking sessions')</p>
+                        <div class="flex-1 min-w-0">
+                            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 truncate header-title">@yield('title', 'Dashboard')</h1>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-0.5 truncate header-subtitle">@yield('subtitle', 'Manage your parking sessions')</p>
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-4">
-                        <!-- Search -->
-                        <div class="hidden md:block relative header-search">
-                            <input type="text" placeholder="Search plates..." class="w-64 lg:w-72 xl:w-80 pl-10 pr-4 py-2 bg-white/60 border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <i class="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        </div>
-
-                        <!-- Quick Actions -->
+                    <!-- Right Section -->
+                    <div class="flex items-center space-x-2 sm:space-x-3 header-actions">
+                        <!-- Quick Actions with Enhanced Mobile Tooltips -->
                         <div class="flex items-center space-x-2">
-                            <a href="{{ route('attendant.sessions.create') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                                <i class="ri-add-line mr-2"></i>New Session
-                            </a>
-                            <a href="{{ route('attendant.plates.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                                <i class="ri-car-line mr-2"></i>Add Plate
-                            </a>
+                            <div class="relative group">
+                                <a href="{{ route('attendant.sessions.create') }}" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white p-2.5 sm:px-4 sm:py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl touch-target focus-ring flex items-center">
+                                    <i class="ri-add-line text-lg sm:mr-2"></i>
+                                    <span class="hidden sm:inline">New Session</span>
+                                </a>
+                                <!-- Mobile Tooltip -->
+                                <div class="tooltip sm:hidden">New Session</div>
+                            </div>
+                            <div class="relative group">
+                                <a href="{{ route('attendant.plates.create') }}" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-2.5 sm:px-4 sm:py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl touch-target focus-ring flex items-center">
+                                    <i class="ri-car-line text-lg sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Add Plate</span>
+                                </a>
+                                <!-- Mobile Tooltip -->
+                                <div class="tooltip sm:hidden">Add Plate</div>
+                            </div>
                         </div>
 
                         <!-- Notifications -->
-                        <button id="notifications-btn" class="relative p-2 bg-white/60 hover:bg-white/80 rounded-xl transition-colors">
-                            <i class="ri-notification-3-line text-xl text-slate-700"></i>
+                        <button id="notifications-btn" class="relative touch-target p-2.5 bg-white/70 hover:bg-white/90 rounded-xl transition-colors shadow-sm focus-ring">
+                            <i class="ri-notification-3-line text-lg sm:text-xl text-slate-700"></i>
                             @php
                                 $unreadNotifications = Auth::user()->unreadNotifications;
                                 $unreadCount = $unreadNotifications->count();
                             @endphp
-                            <span id="notifications-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center {{ $unreadCount > 0 ? '' : 'hidden' }}">{{ $unreadCount }}</span>
+                            <span id="notifications-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center shadow-lg animate-bounce-subtle {{ $unreadCount > 0 ? '' : 'hidden' }}">{{ $unreadCount }}</span>
                         </button>
 
-                        <!-- Profile -->
-                        <div class="hidden md:flex items-center space-x-3 bg-white/60 rounded-xl px-3 py-2 profile-info">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff&rounded=true" alt="Attendant" class="w-8 h-8 rounded-full">
+                        <!-- Profile (Desktop Only) -->
+                        <div class="hidden lg:flex items-center space-x-3 bg-white/70 rounded-xl px-3 py-2 shadow-sm">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff&rounded=true" alt="Attendant" class="w-8 h-8 rounded-xl ring-2 ring-primary-500/30">
                             <div class="text-sm">
-                                <p class="font-medium text-slate-800">{{ Auth::user()->name }}</p>
-                                <p class="text-slate-600">Attendant</p>
+                                <p class="font-semibold text-slate-800">{{ Auth::user()->name }}</p>
+                                <p class="text-slate-600 text-xs">Attendant</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <main class="flex-1 overflow-auto p-4 lg:p-8 main-content">
-                @yield('content')
+            <!-- Enhanced Main Content Area -->
+            <main class="flex-1 overflow-auto p-3 sm:p-4 lg:p-6 xl:p-8 custom-scrollbar">
+                <div class="max-w-7xl mx-auto">
+                    @yield('content')
+                </div>
             </main>
         </div>
 
-        <!-- Right Sidebar for Notifications -->
-        <aside id="notifications-sidebar" class="fixed inset-y-0 right-0 z-50 w-80 bg-white/95 backdrop-blur-lg border-l border-white/20 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out lg:w-96">
+        <!-- Enhanced Right Sidebar for Notifications -->
+        <aside id="notifications-sidebar" class="fixed inset-y-0 right-0 z-50 w-full sm:w-96 lg:w-80 xl:w-96 glass-effect border-l border-white/20 shadow-2xl transform translate-x-full transition-all duration-300 ease-in-out notifications-sidebar">
             <div class="h-full flex flex-col">
-                <!-- Header -->
-                <div class="p-6 border-b border-slate-200">
+                <!-- Enhanced Header -->
+                <div class="p-4 sm:p-6 border-b border-slate-200/50">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-bold text-slate-800">Notifications</h2>
-                        <button id="close-notifications" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center">
+                                <i class="ri-notification-3-line text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-800">Notifications</h2>
+                                <p class="text-xs sm:text-sm text-slate-600">Stay updated with activities</p>
+                            </div>
+                        </div>
+                        <button id="close-notifications" class="touch-target p-2 hover:bg-slate-100 rounded-xl transition-colors focus-ring">
                             <i class="ri-close-line text-xl text-slate-600"></i>
                         </button>
                     </div>
-                    <p class="text-sm text-slate-600 mt-1">Stay updated with recent activities</p>
                 </div>
 
-                <!-- Notifications List -->
-                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="notifications-list">
+                <!-- Enhanced Notifications List -->
+                <div class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 custom-scrollbar" id="notifications-list">
                     @php
                         $notifications = Auth::user()->notifications()->latest()->take(10)->get();
                     @endphp
 
                     @forelse($notifications as $notification)
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow {{ $notification->read_at ? 'opacity-75' : '' }}">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl p-4 hover:shadow-lg transition-all duration-200 {{ $notification->read_at ? 'opacity-75' : 'ring-2 ring-blue-200/50' }}">
                             <div class="flex items-start space-x-3">
-                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="ri-information-line text-white"></i>
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                    <i class="ri-information-line text-white text-lg"></i>
                                 </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between">
-                                        <p class="font-semibold text-slate-800">{{ $notification->data['title'] ?? 'Notification' }}</p>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="font-semibold text-slate-800 text-sm truncate">{{ $notification->data['title'] ?? 'Notification' }}</p>
                                         @if(!$notification->read_at)
-                                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse flex-shrink-0 ml-2"></span>
                                         @endif
                                     </div>
-                                    <p class="text-sm text-slate-600 mt-1">{{ $notification->data['message'] ?? '' }}</p>
-                                    <p class="text-xs text-slate-500 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
-                                    @if(!$notification->read_at)
-                                        <button onclick="window.markAsRead('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-800 underline mt-2">
-                                            Mark as read
-                                        </button>
-                                    @endif
+                                    <p class="text-sm text-slate-600 leading-relaxed">{{ $notification->data['message'] ?? '' }}</p>
+                                    <div class="flex items-center justify-between mt-3">
+                                        <p class="text-xs text-slate-500">{{ $notification->created_at->diffForHumans() }}</p>
+                                        @if(!$notification->read_at)
+                                            <button onclick="window.markAsRead('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors touch-target">
+                                                Mark as read
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-8">
-                            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="ri-notification-off-line text-2xl text-slate-400"></i>
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gradient-to-r from-slate-100 to-slate-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                                <i class="ri-notification-off-line text-3xl text-slate-400"></i>
                             </div>
-                            <p class="text-slate-500 text-sm">No notifications yet</p>
-                            <p class="text-slate-400 text-xs mt-1">You'll see notifications here when they arrive</p>
+                            <p class="text-slate-500 text-base font-medium">No notifications yet</p>
+                            <p class="text-slate-400 text-sm mt-2 max-w-xs mx-auto leading-relaxed">You'll see important updates and alerts here when they arrive</p>
                         </div>
                     @endforelse
                 </div>
 
-                <!-- Footer Actions -->
-                <div class="p-4 border-t border-slate-200">
-                    <button onclick="window.markAllAsRead()" class="block w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 px-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-medium text-center">
+                <!-- Enhanced Footer Actions -->
+                <div class="p-4 border-t border-slate-200/50 bg-gradient-to-t from-slate-50/50 to-transparent">
+                    <button onclick="window.markAllAsRead()" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white py-3 px-4 rounded-2xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl touch-target focus-ring">
+                        <i class="ri-check-double-line mr-2"></i>
                         Mark All as Read
                     </button>
                 </div>
@@ -524,31 +730,42 @@
         </aside>
     </div>
 
-    <!-- JavaScript for Mobile Interactions -->
+    <!-- Enhanced JavaScript for Mobile Interactions -->
     @vite('resources/js/app.js')
     <script>
-        // Mobile menu toggle
+        // Enhanced Mobile Navigation
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.getElementById('sidebar');
         const closeSidebar = document.getElementById('close-sidebar');
         const mobileOverlay = document.getElementById('mobile-overlay');
 
-        mobileMenuBtn?.addEventListener('click', () => {
+        // Improved mobile menu with better UX
+        function openMobileMenu() {
             sidebar.classList.remove('-translate-x-full');
             mobileOverlay.classList.remove('hidden');
-        });
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            sidebar.setAttribute('aria-hidden', 'false');
+        }
 
-        closeSidebar?.addEventListener('click', () => {
+        function closeMobileMenu() {
             sidebar.classList.add('-translate-x-full');
             mobileOverlay.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scroll
+            sidebar.setAttribute('aria-hidden', 'true');
+        }
+
+        mobileMenuBtn?.addEventListener('click', openMobileMenu);
+        closeSidebar?.addEventListener('click', closeMobileMenu);
+        mobileOverlay?.addEventListener('click', closeMobileMenu);
+
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+                closeMobileMenu();
+            }
         });
 
-        mobileOverlay?.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            mobileOverlay.classList.add('hidden');
-        });
-
-        // Notifications sidebar toggle
+        // Enhanced Notifications System
         const notificationsBtn = document.getElementById('notifications-btn');
         const notificationsSidebar = document.getElementById('notifications-sidebar');
         const closeNotificationsBtn = document.getElementById('close-notifications');
@@ -559,20 +776,38 @@
 
         function toggleNotifications() {
             const isHidden = notificationsSidebar.classList.contains('translate-x-full');
+            
             if (isHidden) {
+                // Open notifications
                 notificationsSidebar.classList.remove('translate-x-full');
+                notificationsSidebar.setAttribute('aria-hidden', 'false');
+                
                 if (window.innerWidth < 1024) {
                     mobileOverlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
                 } else {
                     mainContentWrapper.style.marginRight = `${notificationsSidebar.offsetWidth}px`;
                 }
+                
+                // Focus management for accessibility
+                setTimeout(() => {
+                    const firstFocusable = notificationsSidebar.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    firstFocusable?.focus();
+                }, 100);
             } else {
+                // Close notifications
                 notificationsSidebar.classList.add('translate-x-full');
+                notificationsSidebar.setAttribute('aria-hidden', 'true');
+                
                 if (window.innerWidth < 1024) {
                     mobileOverlay.classList.add('hidden');
+                    document.body.style.overflow = '';
                 } else {
                     mainContentWrapper.style.marginRight = '0';
                 }
+                
+                // Return focus to trigger button
+                notificationsBtn?.focus();
             }
         }
 
@@ -649,55 +884,69 @@
         // Initial load
         fetchUnreadNotifications();
 
-        // Auto-hide mobile sidebar on window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024) {
-                sidebar.classList.add('-translate-x-full');
-                mobileOverlay.classList.add('hidden');
+        // Enhanced responsive behavior
+        function handleResize() {
+            const isMobile = window.innerWidth < 1024;
+            
+            if (!isMobile) {
+                // Desktop: ensure sidebar is visible and overlay is hidden
+                closeMobileMenu();
+                // Close notifications overlay if open on mobile
+                if (!notificationsSidebar.classList.contains('translate-x-full')) {
+                    mobileOverlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
             }
-        });
+        }
 
-        // Submenu toggle function
+        window.addEventListener('resize', handleResize);
+
+        // Enhanced submenu toggle with better UX
         function toggleSubmenu(submenuId) {
             const submenu = document.getElementById(submenuId);
             const icon = document.getElementById(submenuId + '-icon');
 
             if (submenu && icon) {
-                // Get all submenus and their icons
                 const allSubmenus = [
                     'sessions-submenu', 'plates-submenu', 'tickets-submenu', 'settings-submenu'
                 ];
 
-                // Check if current submenu is open
                 const isCurrentOpen = !submenu.classList.contains('hidden');
 
-                // Close all submenus first
+                // Close all other submenus first
                 allSubmenus.forEach(menuId => {
-                    const menu = document.getElementById(menuId);
-                    const menuIcon = document.getElementById(menuId + '-icon');
+                    if (menuId !== submenuId) {
+                        const menu = document.getElementById(menuId);
+                        const menuIcon = document.getElementById(menuId + '-icon');
 
-                    if (menu && menuIcon) {
-                        menu.classList.add('hidden');
-                        menuIcon.classList.remove('rotate-180');
+                        if (menu && menuIcon) {
+                            menu.classList.add('hidden');
+                            menuIcon.classList.remove('rotate-180');
+                        }
                     }
                 });
 
-                // If the current submenu was closed, open it
+                // Toggle current submenu
                 if (isCurrentOpen) {
                     submenu.classList.add('hidden');
                     icon.classList.remove('rotate-180');
                 } else {
                     submenu.classList.remove('hidden');
                     icon.classList.add('rotate-180');
+                    
+                    // Smooth scroll to ensure submenu is visible
+                    setTimeout(() => {
+                        submenu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
                 }
             }
         }
 
-        // Enhanced Toast Notification System
+        // Enhanced Toast Notification System with better mobile support
         function showToast(message, type = 'success', duration = 5000) {
             const container = document.getElementById('toast-container');
+            if (!container) return;
 
-            // Create toast element with enhanced styling
             const toast = document.createElement('div');
             const color = getToastColor(type);
             const title = getToastTitle(type);
@@ -705,60 +954,61 @@
             const currentTime = new Date().toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: true
+                hour12: false
             });
 
-            toast.className = `toast toast-${type} toast-enter bg-white border border-${color}-200 rounded-xl p-4 shadow-xl relative overflow-hidden hover:toast-hover transition-all duration-300 cursor-pointer`;
+            toast.className = `toast toast-${type} toast-enter bg-white/95 backdrop-blur-sm border border-${color}-200 rounded-2xl p-4 shadow-2xl relative overflow-hidden hover:toast-hover transition-all duration-300 cursor-pointer touch-target`;
             toast.onclick = () => removeToast(toast);
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'polite');
 
-            // Create enhanced toast content
+            // Enhanced toast content with better mobile layout
             toast.innerHTML = `
                 <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-${color}-500 to-${getGradientColor(type)}-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <div class="w-10 h-10 bg-gradient-to-br from-${color}-500 to-${getGradientColor(type)}-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                         <i class="${icon} text-white text-lg"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between mb-1">
                             <h4 class="text-${color}-800 font-semibold text-sm">${title}</h4>
-                            <span class="text-${color}-500 text-xs">${currentTime}</span>
+                            <span class="text-${color}-500 text-xs font-medium">${currentTime}</span>
                         </div>
-                        <p class="text-${color}-700 text-sm mt-1 leading-relaxed">${message}</p>
+                        <p class="text-${color}-700 text-sm leading-relaxed">${message}</p>
                     </div>
-                    <button onclick="event.stopPropagation(); removeToast(this.parentElement)" class="text-${color}-400 hover:text-${color}-600 transition-colors p-1 rounded-full hover:bg-${color}-50">
+                    <button onclick="event.stopPropagation(); removeToast(this.parentElement)" class="text-${color}-400 hover:text-${color}-600 transition-colors p-2 rounded-xl hover:bg-${color}-50 touch-target focus-ring flex-shrink-0" aria-label="Close notification">
                         <i class="ri-close-line text-lg"></i>
                     </button>
                 </div>
                 <div class="toast-progress bg-${color}-500"></div>
             `;
 
-            // Add to container
             container.appendChild(toast);
 
-            // Auto remove after duration
-            setTimeout(() => {
-                removeToast(toast);
-            }, duration);
+            // Auto remove with pause on hover
+            let timeoutId = setTimeout(() => removeToast(toast), duration);
+            
+            toast.addEventListener('mouseenter', () => clearTimeout(timeoutId));
+            toast.addEventListener('mouseleave', () => {
+                timeoutId = setTimeout(() => removeToast(toast), 2000);
+            });
         }
 
         function removeToast(toast) {
-            if (toast) {
-                // Add exit animation
-                toast.classList.remove('toast-enter');
-                toast.classList.add('toast-exit');
-
-                // Remove progress bar animation
-                const progressBar = toast.querySelector('.toast-progress');
-                if (progressBar) {
-                    progressBar.style.animation = 'none';
-                }
-
-                // Remove from DOM after animation
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 400);
+            if (!toast || !toast.parentNode) return;
+            
+            toast.classList.remove('toast-enter');
+            toast.classList.add('toast-exit');
+            
+            const progressBar = toast.querySelector('.toast-progress');
+            if (progressBar) {
+                progressBar.style.animation = 'none';
             }
+
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 400);
         }
 
         function getToastColor(type) {
@@ -801,9 +1051,101 @@
             return icons[type] || 'ri-information-line';
         }
 
-        // Global function to show toasts from anywhere
+        // Enhanced Performance and UX Features
+        
+        // Lazy loading for better performance
+        function setupLazyLoading() {
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('loading-shimmer');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            images.forEach(img => imageObserver.observe(img));
+        }
+
+        // Enhanced keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', (e) => {
+                // Alt + M for mobile menu
+                if (e.altKey && e.key === 'm') {
+                    e.preventDefault();
+                    if (window.innerWidth < 1024) {
+                        if (sidebar.classList.contains('-translate-x-full')) {
+                            openMobileMenu();
+                        } else {
+                            closeMobileMenu();
+                        }
+                    }
+                }
+                
+                // Alt + N for notifications
+                if (e.altKey && e.key === 'n') {
+                    e.preventDefault();
+                    toggleNotifications();
+                }
+                
+                // Escape to close any open overlays
+                if (e.key === 'Escape') {
+                    if (!sidebar.classList.contains('-translate-x-full')) {
+                        closeMobileMenu();
+                    }
+                    if (!notificationsSidebar.classList.contains('translate-x-full')) {
+                        toggleNotifications();
+                    }
+                }
+            });
+        }
+
+        // Performance optimization: Debounced resize handler
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const debouncedResize = debounce(handleResize, 100);
+        window.addEventListener('resize', debouncedResize);
+
+        // Initialize enhanced features
+        document.addEventListener('DOMContentLoaded', () => {
+            setupLazyLoading();
+            setupKeyboardNavigation();
+            
+            // Add loading states
+            const buttons = document.querySelectorAll('button[type="submit"], a[href*="create"], a[href*="edit"]');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!this.classList.contains('loading')) {
+                        this.classList.add('loading');
+                        const originalContent = this.innerHTML;
+                        this.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Loading...';
+                        
+                        // Reset after 3 seconds as fallback
+                        setTimeout(() => {
+                            this.classList.remove('loading');
+                            this.innerHTML = originalContent;
+                        }, 3000);
+                    }
+                });
+            });
+        });
+
+        // Global functions
         window.showToast = showToast;
         window.removeToast = removeToast;
+        window.toggleSubmenu = toggleSubmenu;
     </script>
 </body>
 </html>

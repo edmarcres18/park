@@ -65,7 +65,13 @@ class PlateApiController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
         $query = Plate::query();
+
+        // Filter by branch for attendant users
+        if (!$user->hasRole('admin') && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
 
         if (request()->filled('q')) {
             $q = request('q');

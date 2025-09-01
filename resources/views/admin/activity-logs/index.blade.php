@@ -96,6 +96,7 @@
                             <tr class="border-b border-gray-200">
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">User</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Branch</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Action</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Model</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">IP</th>
@@ -118,6 +119,24 @@
                                             </div>
                                         @else
                                             <span class="text-gray-500">System</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-4 px-4 text-sm">
+                                        @if($activity->causer && $activity->causer->branch)
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                                    <i class="ri-building-line text-white text-xs"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ $activity->causer->branch->name }}</div>
+                                                    <div class="text-xs text-gray-500">{{ $activity->causer->branch->code }}</div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                                                <i class="ri-building-line mr-1"></i>
+                                                Not Assigned
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="py-4 px-4 text-sm text-gray-900">

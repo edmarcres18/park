@@ -24,9 +24,18 @@ class DashboardApiController extends Controller
         $user = Auth::user();
 
         // Active sessions for this attendant
-        $activeSessions = ParkingSession::where('created_by', $user->id)
-            ->active()
-            ->orderBy('start_time', 'desc')
+        $activeSessionsQuery = ParkingSession::active()
+            ->orderBy('start_time', 'desc');
+
+        // Filter by branch for attendant users
+        if ($user->branch_id) {
+            $activeSessionsQuery->where('branch_id', $user->branch_id);
+        } else {
+            // Fallback to user-created sessions if no branch assigned
+            $activeSessionsQuery->where('created_by', $user->id);
+        }
+
+        $activeSessions = $activeSessionsQuery
             ->get()
             ->map(function (ParkingSession $session) {
                 return [
@@ -44,32 +53,63 @@ class DashboardApiController extends Controller
             });
 
         // Today's stats for this attendant
-        $todaySessionsCount = ParkingSession::where('created_by', $user->id)
-            ->whereDate('start_time', Carbon::today())
-            ->count();
+        $todaySessionsQuery = ParkingSession::whereDate('start_time', Carbon::today());
+        
+        if ($user->branch_id) {
+            $todaySessionsQuery->where('branch_id', $user->branch_id);
+        } else {
+            $todaySessionsQuery->where('created_by', $user->id);
+        }
+        
+        $todaySessionsCount = $todaySessionsQuery->count();
 
-        $todayEarnings = (float) ParkingSession::where('created_by', $user->id)
-            ->whereDate('end_time', Carbon::today())
-            ->whereNotNull('end_time')
-            ->sum('amount_paid');
+        $todayEarningsQuery = ParkingSession::whereDate('end_time', Carbon::today())
+            ->whereNotNull('end_time');
+            
+        if ($user->branch_id) {
+            $todayEarningsQuery->where('branch_id', $user->branch_id);
+        } else {
+            $todayEarningsQuery->where('created_by', $user->id);
+        }
+        
+        $todayEarnings = (float) $todayEarningsQuery->sum('amount_paid');
 
         // This month's stats
-        $monthlySessionsCount = ParkingSession::where('created_by', $user->id)
-            ->whereMonth('start_time', Carbon::now()->month)
-            ->whereYear('start_time', Carbon::now()->year)
-            ->count();
+        $monthlySessionsQuery = ParkingSession::whereMonth('start_time', Carbon::now()->month)
+            ->whereYear('start_time', Carbon::now()->year);
+            
+        if ($user->branch_id) {
+            $monthlySessionsQuery->where('branch_id', $user->branch_id);
+        } else {
+            $monthlySessionsQuery->where('created_by', $user->id);
+        }
+        
+        $monthlySessionsCount = $monthlySessionsQuery->count();
 
-        $monthlyEarnings = (float) ParkingSession::where('created_by', $user->id)
-            ->whereMonth('end_time', Carbon::now()->month)
+        $monthlyEarningsQuery = ParkingSession::whereMonth('end_time', Carbon::now()->month)
             ->whereYear('end_time', Carbon::now()->year)
-            ->whereNotNull('end_time')
-            ->sum('amount_paid');
+            ->whereNotNull('end_time');
+            
+        if ($user->branch_id) {
+            $monthlyEarningsQuery->where('branch_id', $user->branch_id);
+        } else {
+            $monthlyEarningsQuery->where('created_by', $user->id);
+        }
+        
+        $monthlyEarnings = (float) $monthlyEarningsQuery->sum('amount_paid');
 
         // Recent completed sessions
-        $recentCompletedSessions = ParkingSession::where('created_by', $user->id)
-            ->completed()
+        $recentCompletedQuery = ParkingSession::completed()
             ->orderBy('updated_at', 'desc')
-            ->limit(5)
+            ->limit(5);
+            
+        if ($user->branch_id) {
+            $recentCompletedQuery->where('branch_id', $user->branch_id);
+        } else {
+            $recentCompletedQuery->where('created_by', $user->id);
+        }
+        
+        $recentCompletedSessions = $recentCompletedQuery
             ->get()
             ->map(function (ParkingSession $session) {
                 return [

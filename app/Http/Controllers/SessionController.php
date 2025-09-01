@@ -18,10 +18,18 @@ class SessionController extends Controller
      */
     public function index(): View
     {
-        $sessions = ParkingSession::with('creator')->orderBy('created_at', 'desc')->get();
+        $user = auth()->user();
+        $query = ParkingSession::with(['creator', 'branch', 'plate'])->orderBy('created_at', 'desc');
+        
+        // Filter by branch for attendant users
+        if (!$user->hasRole('admin') && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+        
+        $sessions = $query->get();
 
         // Determine view based on user role
-        $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
+        $viewPath = $user->hasRole('admin') ? 'admin.sessions.index' : 'attendant.sessions.index';
 
         return view($viewPath, compact('sessions'));
     }
@@ -31,12 +39,20 @@ class SessionController extends Controller
      */
     public function create(): View
     {
-        $plates = Plate::orderBy('number')->get();
+        $user = auth()->user();
+        $platesQuery = Plate::orderBy('number');
+        
+        // Filter plates by branch for attendant users
+        if (!$user->hasRole('admin') && $user->branch_id) {
+            $platesQuery->where('branch_id', $user->branch_id);
+        }
+        
+        $plates = $platesQuery->get();
         $parkingRates = ParkingRate::orderBy('name')->get();
         $activeRate = ParkingRate::getActiveRate();
 
         // Determine view based on user role
-        $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.create' : 'attendant.sessions.create';
+        $viewPath = $user->hasRole('admin') ? 'admin.sessions.create' : 'attendant.sessions.create';
 
         return view($viewPath, compact('plates', 'parkingRates', 'activeRate'));
     }
@@ -65,12 +81,20 @@ class SessionController extends Controller
      */
     public function edit(ParkingSession $session): View
     {
-        $plates = Plate::orderBy('number')->get();
+        $user = auth()->user();
+        $platesQuery = Plate::orderBy('number');
+        
+        // Filter plates by branch for attendant users
+        if (!$user->hasRole('admin') && $user->branch_id) {
+            $platesQuery->where('branch_id', $user->branch_id);
+        }
+        
+        $plates = $platesQuery->get();
         $parkingRates = ParkingRate::orderBy('name')->get();
         $activeRate = ParkingRate::getActiveRate();
 
         // Determine view based on user role
-        $viewPath = auth()->user()->hasRole('admin') ? 'admin.sessions.edit' : 'attendant.sessions.edit';
+        $viewPath = $user->hasRole('admin') ? 'admin.sessions.edit' : 'attendant.sessions.edit';
 
         return view($viewPath, compact('session', 'plates', 'parkingRates', 'activeRate'));
     }

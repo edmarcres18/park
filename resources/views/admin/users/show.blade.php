@@ -12,6 +12,11 @@
             <p class="text-slate-600 mt-1">Manage user information and status</p>
         </div>
         <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+            <a href="{{ route('admin.users.edit', $user) }}"
+               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200">
+                <i class="ri-edit-line mr-2"></i>
+                Edit User
+            </a>
             <a href="{{ route('admin.users.index') }}"
                class="inline-flex items-center px-4 py-2 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-200">
                 <i class="ri-arrow-left-line mr-2"></i>
@@ -83,6 +88,49 @@
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
                                 <p class="text-slate-900 bg-slate-50 px-3 py-2 rounded-lg">{{ $user->email }}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">User Role</label>
+                                <div class="bg-slate-50 px-3 py-2 rounded-lg">
+                                    @if($user->hasRole('admin'))
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            <i class="ri-shield-user-line mr-1"></i>
+                                            Administrator
+                                        </span>
+                                    @elseif($user->hasRole('attendant'))
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <i class="ri-user-voice-line mr-1"></i>
+                                            Attendant
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                                            {{ $user->roles->first() ? ucfirst($user->roles->first()->name) : 'No Role' }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Assigned Branch</label>
+                                <div class="bg-slate-50 px-3 py-2 rounded-lg">
+                                    @if($user->branch)
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="ri-building-line text-white text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-slate-900">{{ $user->branch->name }}</div>
+                                                <div class="text-xs text-slate-500">{{ $user->branch->code }} • {{ $user->branch->address }}</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                            <i class="ri-building-line mr-1"></i>
+                                            Not Assigned
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         <div class="space-y-4">

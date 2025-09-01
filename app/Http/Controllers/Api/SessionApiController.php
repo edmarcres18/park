@@ -23,10 +23,20 @@ class SessionApiController extends Controller
      */
     public function active(Request $request): JsonResponse
     {
-        $sessions = ParkingSession::with('creator')
+        $user = auth()->user();
+        $query = ParkingSession::with('creator')
             ->active()
-            ->where('created_by', auth()->id())
-            ->orderBy('start_time', 'desc')
+            ->orderBy('start_time', 'desc');
+
+        // Filter by branch for attendant users
+        if ($user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        } else {
+            // Fallback to user-created sessions if no branch assigned
+            $query->where('created_by', $user->id);
+        }
+
+        $sessions = $query
             ->get()
             ->map(function ($session) {
                 return [
@@ -73,9 +83,17 @@ class SessionApiController extends Controller
      */
     public function history(Request $request): JsonResponse
     {
+        $user = auth()->user();
         $query = ParkingSession::with('creator')
-            ->where('created_by', auth()->id())
             ->orderBy('created_at', 'desc');
+
+        // Filter by branch for attendant users
+        if ($user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        } else {
+            // Fallback to user-created sessions if no branch assigned
+            $query->where('created_by', $user->id);
+        }
 
         // Optional pagination
         $perPage = $request->get('per_page', 15);

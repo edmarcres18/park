@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\SystemApiController;
 use App\Http\Controllers\TicketPrintController;
+use App\Http\Controllers\Api\NotificationApiController;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
@@ -23,6 +24,11 @@ Route::get('/system/settings', [SystemApiController::class, 'settings'])->middle
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'me']);
+
+    // Notifications API (mobile/web clients)
+    Route::get('/notifications/unread', [NotificationApiController::class, 'unread']);
+    Route::post('/notifications/{id}/read', [NotificationApiController::class, 'markRead'])->whereUuid('id');
+    Route::post('/notifications/read-all', [NotificationApiController::class, 'markAllRead']);
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::put('users/{user}/status', [UserController::class, 'updateStatus']);

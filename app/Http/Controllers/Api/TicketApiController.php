@@ -26,13 +26,21 @@ class TicketApiController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $user = auth()->user();
         $query = Ticket::query()
             ->with(['parkingSession.creator', 'parkingSession.parkingRate'])
-            ->whereHas('parkingSession', function ($q) {
-                $q->where('created_by', auth()->id())
-                  ->whereNotNull('end_time');
-            })
             ->orderBy('created_at', 'desc');
+
+        // Filter by branch for attendant users
+        if ($user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        } else {
+            // Fallback to user-created sessions if no branch assigned
+            $query->whereHas('parkingSession', function ($q) use ($user) {
+                $q->where('created_by', $user->id)
+                  ->whereNotNull('end_time');
+            });
+        }
 
         // Filter by plate number
         if ($request->filled('plate_number')) {

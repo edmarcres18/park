@@ -28,7 +28,44 @@ class ParkingNotification extends Notification implements ShouldBroadcast
         return ['database', 'broadcast'];
     }
 
+    /**
+     * Prevent duplicate unread notifications in the database for same payload.
+     * Applies only to the database channel; broadcast will still emit.
+     */
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        if ($channel !== 'database') {
+            return true;
+        }
+
+        return ! $notifiable->notifications()
+            ->where('type', static::class)
+            ->whereNull('read_at')
+            ->where('data->title', $this->title)
+            ->where('data->message', $this->message)
+            ->where('data->type', $this->type)
+            ->where('data->link', $this->link)
+            ->where('data->initiator_id', $this->initiatorId)
+            ->where('data->target_role', $this->targetRole)
+            ->exists();
+    }
+
     public function toArray(object $notifiable): array
+    {
+        return [
+            'title' => $this->title,
+            'message' => $this->message,
+            'type' => $this->type,
+            'link' => $this->link,
+            'initiator_id' => $this->initiatorId,
+            'target_role' => $this->targetRole,
+        ];
+    }
+
+    /**
+     * Payload stored by the database channel.
+     */
+    public function toDatabase(object $notifiable): array
     {
         return [
             'title' => $this->title,

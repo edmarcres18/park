@@ -29,6 +29,7 @@ class ParkingSession extends Model
         'printed',
         'created_by',
         'parking_rate_id',
+        'branch_id',
     ];
 
     /**
@@ -78,6 +79,14 @@ class ParkingSession extends Model
     public function parkingRate(): BelongsTo
     {
         return $this->belongsTo(ParkingRate::class);
+    }
+
+    /**
+     * Get the branch that owns this parking session.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
     
     /**
@@ -307,5 +316,23 @@ class ParkingSession extends Model
             'total_fee' => $totalFee,
             'breakdown' => $breakdown
         ];
+    }
+
+    /**
+     * Boot the model and set up event listeners.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($session) {
+            // Auto-assign branch_id if user is an attendant and has a branch
+            if (!$session->branch_id && auth()->check()) {
+                $user = auth()->user();
+                if ($user->hasRole('attendant') && $user->branch_id) {
+                    $session->branch_id = $user->branch_id;
+                }
+            }
+        });
     }
 }

@@ -15,7 +15,16 @@ class PlateController extends Controller
      */
     public function index()
     {
-        $plates = Plate::latest()->paginate(10);
+        $user = auth()->user();
+        
+        // Filter plates by user's branch if user has a branch assigned
+        $query = Plate::latest();
+        
+        if ($user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+        
+        $plates = $query->paginate(10);
         return view('attendant.plates.index', compact('plates'));
     }
 

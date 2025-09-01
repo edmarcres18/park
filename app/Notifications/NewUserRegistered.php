@@ -36,6 +36,24 @@ class NewUserRegistered extends Notification implements ShouldBroadcast
     }
 
     /**
+     * Prevent duplicate unread notifications in the database.
+     * Only checks for the database channel; others (e.g., mail) will still send.
+     */
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        if ($channel !== 'database') {
+            return true;
+        }
+
+        // Avoid creating a duplicate unread DB notification for the same user_id
+        return ! $notifiable->notifications()
+            ->where('type', static::class)
+            ->whereNull('read_at')
+            ->where('data->user_id', $this->user->id)
+            ->exists();
+    }
+
+    /**
      * Get the mail representation of the notification.
      */
     public function toMail(object $notifiable): MailMessage
@@ -54,6 +72,19 @@ class NewUserRegistered extends Notification implements ShouldBroadcast
      * @return array<string, mixed>
      */
     public function toArray(object $notifiable): array
+    {
+        // Used by non-database channels (e.g., broadcast if enabled)
+        return [
+            'user_id' => $this->user->id,
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+        ];
+    }
+
+    /**
+     * Payload stored in the database notifications table.
+     */
+    public function toDatabase(object $notifiable): array
     {
         return [
             'user_id' => $this->user->id,

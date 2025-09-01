@@ -21,29 +21,31 @@ use App\Models\User;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\TicketTemplateController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ScheduledNotificationController;
+use App\Http\Controllers\Admin\BranchController;
 
     Route::get('/', function () {
         return view('auth.login');
     });
 
-    // Test route for notifications (remove in production)
-    Route::get('/test-notification', function () {
-        $admin = \App\Models\User::whereHas('roles', function ($query) {
-            $query->where('name', 'admin');
-        })->first();
+    // // Test route for notifications (remove in production)
+    // Route::get('/test-notification', function () {
+    //     $admin = \App\Models\User::whereHas('roles', function ($query) {
+    //         $query->where('name', 'admin');
+    //     })->first();
 
-        if ($admin) {
-            $testUser = new \App\Models\User([
-                'name' => 'Test User ' . now()->format('H:i:s'),
-                'email' => 'test' . time() . '@example.com',
-            ]);
+    //     if ($admin) {
+    //         $testUser = new \App\Models\User([
+    //             'name' => 'Test User ' . now()->format('H:i:s'),
+    //             'email' => 'test' . time() . '@example.com',
+    //         ]);
 
-            $admin->notify(new \App\Notifications\NewUserRegistered($testUser));
-            return 'Test notification sent!';
-        }
+    //         $admin->notify(new \App\Notifications\NewUserRegistered($testUser));
+    //         return 'Test notification sent!';
+    //     }
 
-        return 'No admin user found';
-    });
+    //     return 'No admin user found';
+    // });
 
     Route::get('register', [RegisterController::class, 'showRegistrationForm'])->middleware('guest')->name('register');
     Route::post('register', [RegisterController::class, 'register'])->middleware('guest','throttle:3,5');
@@ -68,6 +70,8 @@ use App\Http\Controllers\ProfileController;
         Route::get('users/pending', [UserController::class, 'pending'])->name('users.pending');
         Route::get('users/rejected', [UserController::class, 'rejected'])->name('users.rejected');
         Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::put('users/{user}/status', [UserController::class, 'updateStatus'])->name('users.update-status');
         Route::delete('users/{userId}', [UserController::class, 'delete'])->name('users.delete');
 
@@ -125,6 +129,9 @@ use App\Http\Controllers\ProfileController;
             // 58mm print preview (Blade)
             Route::get('/{ticket}/print-58mm', [TicketPrintController::class, 'web'])->name('print-58mm');
         });
+
+        // Branch Management routes (Admin only)
+        Route::resource('branches', BranchController::class);
 
         // Site Settings routes (Admin only)
         Route::prefix('settings')->name('settings.')->group(function () {

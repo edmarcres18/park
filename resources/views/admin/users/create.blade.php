@@ -122,6 +122,27 @@
                 @enderror
             </div>
 
+            <!-- Branch Assignment Field -->
+            <div>
+                <label for="branch_id" class="block text-sm font-medium text-slate-700 mb-2">
+                    Assign Branch
+                </label>
+                <select id="branch_id"
+                        name="branch_id"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('branch_id') border-red-300 focus:ring-red-500 @enderror">
+                    <option value="">No branch assigned</option>
+                    @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                            {{ $branch->name }} ({{ $branch->code }})
+                        </option>
+                    @endforeach
+                </select>
+                @error('branch_id')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+                <p class="text-slate-500 text-sm mt-1">Optional: Assign user to a specific branch location</p>
+            </div>
+
             <!-- Status Information -->
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <div class="flex items-start space-x-3">

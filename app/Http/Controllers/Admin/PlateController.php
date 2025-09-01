@@ -15,7 +15,7 @@ class PlateController extends Controller
      */
     public function index()
     {
-        $plates = Plate::latest()->paginate(10);
+        $plates = Plate::with('branch')->latest()->paginate(10);
         return view('admin.plates.index', compact('plates'));
     }
 
