@@ -145,7 +145,7 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load('roles');
+        $user->load(['roles', 'branch']);
 
         activity('authentication')
             ->causedBy($user)
@@ -162,6 +162,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'status' => $user->status,
             'roles' => $user->roles->pluck('name'),
+            'branch_name' => $user->branch ? $user->branch->name : null,
         ]);
     }
 }
