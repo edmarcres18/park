@@ -141,9 +141,18 @@ class ParkingRate extends Model
             : $durationMinutes;
 
         if ($this->rate_type === 'hourly') {
-            // Round up to the nearest hour
-            $hours = ceil($chargeableMinutes / 60);
-            return $hours * $this->rate_amount;
+            // Calculate precise hourly + minute rates
+            $fullHours = floor($chargeableMinutes / 60);
+            $remainingMinutes = $chargeableMinutes % 60;
+            
+            // Calculate hourly rate per minute (e.g., ₱50/hour = ₱0.8333/minute)
+            $ratePerMinute = $this->rate_amount / 60;
+            
+            // Calculate total: (full hours × hourly rate) + (remaining minutes × rate per minute)
+            $hourlyAmount = $fullHours * $this->rate_amount;
+            $minuteAmount = $remainingMinutes * $ratePerMinute;
+            
+            return round($hourlyAmount + $minuteAmount, 2);
         } else {
             // Per minute billing
             return $chargeableMinutes * $this->rate_amount;

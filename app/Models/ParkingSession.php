@@ -300,8 +300,21 @@ class ParkingSession extends Model
         
         if ($chargeableMinutes > 0) {
             if ($parkingRate->rate_type === 'hourly') {
-                $chargeableHours = ceil($chargeableMinutes / 60);
-                $breakdown[] = "Chargeable time: {$chargeableHours} hour(s) × {$parkingRate->formatted_rate_amount}";
+                $fullHours = floor($chargeableMinutes / 60);
+                $remainingMinutes = $chargeableMinutes % 60;
+                $ratePerMinute = $parkingRate->rate_amount / 60;
+                
+                if ($fullHours > 0 && $remainingMinutes > 0) {
+                    $hourlyAmount = $fullHours * $parkingRate->rate_amount;
+                    $minuteAmount = $remainingMinutes * $ratePerMinute;
+                    $breakdown[] = "Full hours: {$fullHours} × {$parkingRate->formatted_rate_amount} = ₱" . number_format($hourlyAmount, 2);
+                    $breakdown[] = "Additional minutes: {$remainingMinutes} × ₱" . number_format($ratePerMinute, 2) . "/min = ₱" . number_format($minuteAmount, 2);
+                } elseif ($fullHours > 0) {
+                    $breakdown[] = "Chargeable time: {$fullHours} hour(s) × {$parkingRate->formatted_rate_amount}";
+                } else {
+                    $minuteAmount = $remainingMinutes * $ratePerMinute;
+                    $breakdown[] = "Chargeable time: {$remainingMinutes} minutes × ₱" . number_format($ratePerMinute, 2) . "/min = ₱" . number_format($minuteAmount, 2);
+                }
             } else {
                 $breakdown[] = "Chargeable time: {$chargeableMinutes} minutes × {$parkingRate->formatted_rate_amount}";
             }
