@@ -23,6 +23,7 @@ class Ticket extends Model
         'plate_number',
         'time_in',
         'time_out',
+        'duration_minutes',
         'rate',
         'parking_slot',
         'is_printed',
@@ -54,6 +55,7 @@ class Ticket extends Model
             'rate' => 'decimal:2',
             'time_in' => 'datetime',
             'time_out' => 'datetime',
+            'duration_minutes' => 'integer',
             'is_printed' => 'boolean',
             'qr_data' => 'array',
             'latitude' => 'decimal:8',
@@ -98,6 +100,67 @@ class Ticket extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    /**
+     * Calculate duration in minutes between time_in and time_out.
+     */
+    public function calculateDuration(): ?int
+    {
+        if (!$this->time_in || !$this->time_out) {
+            return null;
+        }
+
+        return $this->time_in->diffInMinutes($this->time_out);
+    }
+
+    /**
+     * Update the duration field based on time_in and time_out.
+     */
+    public function updateDuration(): self
+    {
+        $this->duration_minutes = $this->calculateDuration();
+        return $this;
+    }
+
+    /**
+     * Get formatted duration as hours and minutes.
+     */
+    public function getFormattedDurationAttribute(): string
+    {
+        if (!$this->duration_minutes) {
+            return 'N/A';
+        }
+
+        $hours = floor($this->duration_minutes / 60);
+        $minutes = $this->duration_minutes % 60;
+
+        if ($hours > 0) {
+            return $minutes > 0 ? "{$hours}h {$minutes}m" : "{$hours}h";
+        }
+
+        return "{$minutes}m";
+    }
+
+    /**
+     * Get duration in hours as decimal.
+     */
+    public function getDurationHoursAttribute(): ?float
+    {
+        if (!$this->duration_minutes) {
+            return null;
+        }
+
+        return round($this->duration_minutes / 60, 2);
+    }
+
+    /**
+     * Check if ticket is completed (has time_out).
+     */
+    public function isCompleted(): bool
+    {
+        return !is_null($this->time_out);
+    }
+
 
     /**
      * Generate a unique ticket number.
@@ -450,6 +513,13 @@ class Ticket extends Model
                 if ($user->hasRole('attendant') && $user->branch_id) {
                     $ticket->branch_id = $user->branch_id;
                 }
+            }
+        });
+
+        // Automatically calculate duration when saving
+        static::saving(function ($ticket) {
+            if ($ticket->time_in && $ticket->time_out) {
+                $ticket->duration_minutes = $ticket->calculateDuration();
             }
         });
     }
